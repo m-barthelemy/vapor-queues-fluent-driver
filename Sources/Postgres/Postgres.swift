@@ -1,13 +1,12 @@
 
 import FluentPostgresDriver
 
-#if canImport(FluentPostgresDriver)
 struct dbDriver {
-    func dbDriver(_ database: Database) ->  PostgresDatabase {
+    private func dbDriver(_ database: Database) ->  PostgresDatabase {
         return database as! PostgresDatabase
     }
     
-    func encodeValue(_ value: String) -> PostgresData {
+    private func encodeValue(_ value: String) -> PostgresData {
         return PostgresData(string: value)
     }
     
@@ -20,6 +19,4 @@ struct dbDriver {
         }
     }
 }
-#endif
-
 
