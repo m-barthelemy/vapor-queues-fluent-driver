@@ -1,11 +1,7 @@
 import Foundation
 import Queues
 import Fluent
-import FluentKit
 import SQLKit
-
-import FluentMySQLDriver
-import FluentPostgresDriver
 
 struct FluentQueue {
     let database: Database
@@ -118,7 +114,6 @@ extension FluentQueue: Queue {
             }
         }
     }
-    
     
 }
 

@@ -1,0 +1,54 @@
+import Foundation
+import Fluent
+
+enum JobState: String, Codable, CaseIterable {
+    /// Job created but should NOT be picked up for execution yet
+    case initial
+    /// Ready to be oicked up for execution
+    case pending
+    case processing
+    /// Executed, regardless if it was successful or not
+    case completed
+}
+
+class JobModel: Model {
+    public required init() {}
+    
+    /// Properties
+    public static var schema = "jobs"
+    
+    /// The unique Job uuid
+    @ID(key: .id)
+    public var id: UUID?
+    
+    /// The Job key
+    @Field(key: "key")
+    var key: String
+    
+    /// The Job data
+    @Field(key: "data")
+    var data: Data
+    
+    /// The current state of the Job
+    @Field(key: "state")
+    var state: JobState
+    
+    /// The created timestamp
+    @Timestamp(key: "created_at", on: .create)
+    var createdAt: Date?
+    
+    /// The updated timestamp
+    @Timestamp(key: "updated_at", on: .update)
+    var updatedAt: Date?
+    
+    @Timestamp(key: "deleted_at", on: .delete)
+    var deletedAt: Date?
+    
+    
+    init(id: UUID, key: String, data: Data) {
+        self.id = id
+        self.key = key
+        self.data = data
+        self.state = .initial
+    }
+}
