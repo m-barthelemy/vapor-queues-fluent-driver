@@ -2,6 +2,8 @@ import Foundation
 import Fluent
 
 public struct JobModelMigrate: Migration {
+    public init() {}
+    
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         let model = FluentQueue.model
         return database.schema(JobModel.schema)
