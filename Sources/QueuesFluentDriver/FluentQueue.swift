@@ -99,7 +99,8 @@ extension FluentQueue: Queue {
             .select ()
             .column ("\(Self.model.$id.key)")
             .from   (JobModel.schema)
-            .where  ("\(Self.model.$state.key)", SQLBinaryOperator.equal, JobState.pending)
+            //.where  ("\(Self.model.$state.key)", SQLBinaryOperator.equal, JobState.pending)
+            .where("\(Self.model.$state.key)", SQLBinaryOperator.equal, SQLBind.init(JobState.pending))
             .orderBy("\(Self.model.$createdAt.path.first!)")
             .limit  (1)
         
@@ -110,8 +111,10 @@ extension FluentQueue: Queue {
         
         let query = db
             .update(JobModel.schema)
-            .set("\(Self.model.$state.key)", to: JobState.processing)
-            .set("\(Self.model.$updatedAt.path.first!)", to: Date())
+            //.set("\(Self.model.$state.key)", to: JobState.processing)
+            .set(SQLColumn.init("\(Self.model.$state.key)"), to: SQLBind.init(JobState.processing))
+            //.set("\(Self.model.$updatedAt.path.first!)", to: Date())
+            .set(SQLColumn.init("\(Self.model.$updatedAt.path.first!)"), to: SQLBind.init(Date()))
             .where(
                 SQLBinaryExpression(left: SQLColumn("\(Self.model.$id.key)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )

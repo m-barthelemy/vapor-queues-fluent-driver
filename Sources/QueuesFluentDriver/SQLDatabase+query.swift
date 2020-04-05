@@ -9,12 +9,12 @@ struct sqlCache{
 extension SQLDatabase {
     func query(db: SQLDatabase, sql: String, binds: [Encodable] = []) -> SQLRawBuilder {
         var sql = sql
-        if(sqlCache.cache.keys.contains(sql)) {
+        /*if(sqlCache.cache.keys.contains(sql)) {
             print("•••• Using SQL cache!")
         }
         else {
             sqlCache.cache[sql] = prepareSql(sql: sql, binds: binds).1
-        }
+        }*/
         var bindPos = 0
         binds.forEach {
             bindPos += 1
