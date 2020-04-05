@@ -122,6 +122,10 @@ extension FluentQueue: Queue {
         //let (sql, binds) = db.serialize(query)
         var serializer = SQLSerializer(database: db)
         query.serialize(to: &serializer)
+        serializer.binds.map {
+            print("•• bind=\($0)")
+            serializer.write(bind: $0)
+        }
         print("•••••• SERIALIZED=\(serializer.sql)")
     
         let driver = dbDriver()
