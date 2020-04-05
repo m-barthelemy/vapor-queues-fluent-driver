@@ -95,39 +95,44 @@ extension FluentQueue: Queue {
         }
         let db = database as! SQLDatabase
             
-            var subQuery = db
-                .select ()
-                .column ("\(Self.model.$id.key)")
-                .from   (JobModel.schema)
-                .where  ("\(Self.model.$state.key)", SQLBinaryOperator.equal, JobState.pending)
-                .orderBy("\(Self.model.$createdAt.path.first!)")
-                .limit  (1)
-            
-            if (self.useForUpdateSkipLocked) {
-                subQuery = subQuery.lockingClause(SQLForUpdateSkipLocked.forUpdateSkipLocked)
-            }
-            let subQueryGroup = SQLGroupExpression.init(subQuery.query)
-            
-            let query = db
-                .update(JobModel.schema)
-                .set("\(Self.model.$state.key)", to: JobState.processing)
-                .set("\(Self.model.$updatedAt.path.first!)", to: Date())
-                .where(
-                    SQLBinaryExpression(left: SQLColumn("\(Self.model.$id.key)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
-                )
-                // Gross abuse
-                .orWhere(SQLReturning.returningAll)
-                .query
-            
-            let driver = dbDriver()
+        var subQuery = db
+            .select ()
+            .column ("\(Self.model.$id.key)")
+            .from   (JobModel.schema)
+            .where  ("\(Self.model.$state.key)", SQLBinaryOperator.equal, JobState.pending)
+            .orderBy("\(Self.model.$createdAt.path.first!)")
+            .limit  (1)
+        
+        if (self.useForUpdateSkipLocked) {
+            subQuery = subQuery.lockingClause(SQLForUpdateSkipLocked.forUpdateSkipLocked)
+        }
+        let subQueryGroup = SQLGroupExpression.init(subQuery.query)
+        
+        let query = db
+            .update(JobModel.schema)
+            .set("\(Self.model.$state.key)", to: JobState.processing)
+            .set("\(Self.model.$updatedAt.path.first!)", to: Date())
+            .where(
+                SQLBinaryExpression(left: SQLColumn("\(Self.model.$id.key)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
+            )
+            // Gross abuse
+            .orWhere(SQLReturning.returningAll)
+            .query
+        
+        //let (sql, binds) = db.serialize(query)
+        var serializer = SQLSerializer(database: db)
+        sql.serialize(to: &serializer)
+        print("•••••• SERIALIZED=\(serializer.sql)")
+    
+        let driver = dbDriver()
         return driver.rawQuery(db: database, query: query).map { id in
-                if(id != nil ) {
-                    return JobIdentifier(string: id!.uuidString)
-                }
-                else {
-                    return nil
-                }
+            if(id != nil ) {
+                return JobIdentifier(string: id!.uuidString)
             }
+            else {
+                return nil
+            }
+        }
     }
     
 }
