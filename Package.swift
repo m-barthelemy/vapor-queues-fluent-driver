@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent-mysql-driver.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/sql-kit.git", from: "3.0.0-rc"),
-        .package(url: "https://github.com/vapor/queues.git", from: "1.0.0-rc"),
+        .package(url: "https://github.com/vapor/queues.git", from: "1.0.0-rc.1.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
