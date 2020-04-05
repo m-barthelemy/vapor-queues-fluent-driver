@@ -119,16 +119,15 @@ extension FluentQueue: Queue {
             .orWhere(SQLReturning.returningAll)
             .query
         
-        //let (sql, binds) = db.serialize(query)
+        let (sql, binds) = db.serialize(query)
         var serializer = SQLSerializer(database: db)
-        query.serialize(to: &serializer)
-        serializer.binds.map {
-            print("•• bind=\($0)")
-            serializer.write(bind: $0)
-        }
+        //query.serialize(to: &serializer)
+        let qs = SQLQueryString(serializer.sql)
+        SQLRaw.init(sql, binds).serialize(to: &serializer)
         print("•••••• SERIALIZED=\(serializer.sql)")
-    
-        let driver = dbDriver()
+        //let rb = SQLRawBuilder.init(qs, on: db)
+
+        /*let driver = dbDriver()
         return driver.rawQuery(db: database, query: query).map { id in
             if(id != nil ) {
                 return JobIdentifier(string: id!.uuidString)
@@ -136,6 +135,9 @@ extension FluentQueue: Queue {
             else {
                 return nil
             }
+        }*/
+        return db.query(db: db, sql: sql, binds: binds).first(decoding: UUID.self).optionalMap {
+            return JobIdentifier(string: $0.uuidString)
         }
     }
     
