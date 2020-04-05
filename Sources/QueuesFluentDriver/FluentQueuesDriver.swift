@@ -16,8 +16,8 @@ public struct FluentQueuesDriver {
 
 extension FluentQueuesDriver: QueuesDriver {
     public func makeQueue(with context: QueueContext) -> Queue {
-        
-        let db = self.database.configuration
+
+        let db = self.database.context.configuration
             .makeDriver(for: Databases.init(threadPool: NIOThreadPool.init(numberOfThreads: 4), on: context.eventLoop))
             .makeDatabase(with:
                 DatabaseContext(configuration: self.database.configuration, logger: self.database.logger, eventLoop: context.eventLoop)
