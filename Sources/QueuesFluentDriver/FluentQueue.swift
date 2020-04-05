@@ -106,7 +106,7 @@ extension FluentQueue: Queue {
                 .query
             
             let driver = dbDriver()
-            return driver.rawQuery(db: self.database, query: query).map { id in
+            return driver.rawQuery(db: conn, query: query).map { id in
                 if(id != nil ) {
                     return JobIdentifier(string: id!.uuidString)
                 }
