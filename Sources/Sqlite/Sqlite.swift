@@ -7,13 +7,10 @@ import QueuesFluentDriver
         return database as! SQLiteDatabase
     }
     
-    private func encodeValue(_ value: String) -> SQLiteData {
-        return SQLiteData.text(value)
-    }
-    
     func rawQuery(db: Database, query: SQLExpression) -> EventLoopFuture<UUID?> {
         let sql = (db as! SQLDatabase).serialize(query)
-        let binds = sql.binds.map { encodeValue($0 as! String) }
+        let encoder = SQLiteDataEncoder()
+        let binds = sql.binds.map { try! encoder.encode($0) }
         return dbDriver(db).query(sql.sql, binds).map { row in
             let id = try? row.first?.decode(column: JobModel.init().$id.key.description, as: JobModel.IDValue.self)
             return id
