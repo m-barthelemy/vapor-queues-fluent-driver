@@ -1,6 +1,6 @@
 # QueuesFluentDriver
 
-**Note**: This package is still experimental, and even if it's ultimately supposed to work with pretty much all relational databases supported by Fluent, currently only Postgres support is compiled.
+**Note**: This package is still experimental. Please do open an issue if something doesn't work as expected. 
 
 
 
@@ -16,7 +16,7 @@ This package should be compatible with:
 - Postgres >= 9.5
 - Mysql >= 8.0.1
 - MariaDB >= 10.3
-- Sqlite (soon)
+- Sqlite **(soon)**
 
 
 ## Usage

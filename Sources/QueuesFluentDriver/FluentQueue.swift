@@ -130,19 +130,9 @@ extension FluentQueue: Queue {
                 return nil
             }
         }*/
-        return db.query(db: db, sql: sql, binds: binds).first().optionalMap { row in    //.first(decoding: UUID.self).optionalMap {
-            //print("••• Columns: \(row.allColumns)")
-            //print("••• id = \( try! row.decode(column: "id", as: UUID.self)  )")
-            //return JobIdentifier(string: $0.uuidString)
-            return JobIdentifier(string: (try! row.decode(column: "id", as: UUID.self)).uuidString)
+        return db.query(db: db, sql: sql, binds: binds).first().optionalMap { row in
+            return JobIdentifier(string: (try! row.decode(column: "\(Self.model.$id.key)", as: UUID.self)).uuidString)
         }
     }
     
-}
-
-enum QueuesFluentError: Error {
-    case missingJob(_ id: JobIdentifier)
-    case invalidIdentifier
-    case jobDataEncodingError(_ message: String)
-    case databaseNotFound
 }
