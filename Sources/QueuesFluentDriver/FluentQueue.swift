@@ -120,12 +120,6 @@ extension FluentQueue: Queue {
             .query
         
         let (sql, binds) = db.serialize(query)
-        var serializer = SQLSerializer(database: db)
-        //query.serialize(to: &serializer)
-        let qs = SQLQueryString(serializer.sql)
-        SQLRaw.init(sql, binds).serialize(to: &serializer)
-        print("•••••• SERIALIZED=\(serializer.sql)")
-        //let rb = SQLRawBuilder.init(qs, on: db)
 
         /*let driver = dbDriver()
         return driver.rawQuery(db: database, query: query).map { id in
