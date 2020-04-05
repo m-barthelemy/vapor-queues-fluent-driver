@@ -1,8 +1,8 @@
-import Foundation
+/*import Foundation
 import FluentSQLiteDriver
 import QueuesFluentDriver
 
-/*struct dbDriver {
+struct dbDriver {
     private func dbDriver(_ database: Database) -> SQLiteDatabase  {
         return database as! SQLiteDatabase
     }

@@ -1,4 +1,4 @@
-import Foundation
+/*import Foundation
 import Fluent
 import SQLKit
 import FluentMySQLDriver
@@ -6,7 +6,7 @@ import MySQLKit
 import QueuesFluentDriver
 
 
-/*struct dbDriver {
+struct dbDriver {
     private func dbDriver(_ database: Database) ->  MySQLDatabase {
         return database as! MySQLDatabase
     }
