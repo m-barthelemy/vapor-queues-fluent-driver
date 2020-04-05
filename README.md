@@ -40,7 +40,7 @@ let package = Package(
     ],
     dependencies: [
         ...
-        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.0.10"),
+        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.1.2"),
         ...
     ],
     targets: [
@@ -56,29 +56,44 @@ let package = Package(
 
 ```
 
-In your app configuration, configure and load this `Queues` driver:
+&nbsp;
 
+In your app configuration (for example, `configure.swift`), make sure you first configure your Fluent database(s):
 ```swift
-    // Your normal Vapor4 database configuration.
-    ...
-    app.databases.use(.postgres(configuration: dbConfig), as: .psql, isDefault: true)
-    ...
-    
-    // Ensure the table for storing jobs is created
-    ...
-    app.migrations.add(JobModelMigrate())
-    
-    // load the driver
-    app.queues.use(.fluent(.psql))
+import Vapor
+import QueuesFluentDriver
+...
+...
+// Your normal Vapor4 database configuration for your application.
+app.databases.use(.postgres(configuration: dbConfig), as: .psql, isDefault: true)
+...
 ```
 
-You can optiinally create a dedicated Database, set to `isdefault: false` and with a custom `DatabaseID` and use it for your Queues.
-In that case you would initialize thr Queues configuration like this:
+&nbsp;
+
+This package needs a table, named `jobs`, to store the Vapor Queues jobs. Add `JobModelMigrate` to your migrations:
+```swift
+// Ensure the table for storing jobs is created
+app.migrations.add(JobModelMigrate())
+```    
+    
+&nbsp;
+
+Load the `QueuesFluentDriver` driver:
+```swift    
+app.queues.use(.fluent(.psql))
+```
+
+
+&nbsp;
+
+You can optionally create a dedicated Database, set to `isdefault: false` and with a custom `DatabaseID` and use it for your Queues.
+In that case you would initialize the Queues configuration like this:
 
 ```swift
-    let queuesDb = DatabaseID(string: "my_queues_db")
-    app.databases.use(.postgres(configuration: dbConfig), as: queuesDb, isDefault: false)
-    app.queues.use(.fluent(queuesDb))
+let queuesDb = DatabaseID(string: "my_queues_db")
+app.databases.use(.postgres(configuration: dbConfig), as: queuesDb, isDefault: false)
+app.queues.use(.fluent(queuesDb))
 ```
 
 
