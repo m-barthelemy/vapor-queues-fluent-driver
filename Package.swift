@@ -26,9 +26,9 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
-        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
-        .package(url: "https://github.com/vapor/fluent-mysql-driver.git", from: "4.0.0-rc"),
+        //.package(url: "https://github.com/vapor/fluent-mysql-driver.git", from: "4.0.0-rc"),
+        //.package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/sql-kit.git", from: "3.0.0-rc"),
         .package(url: "https://github.com/vapor/queues.git", from: "1.0.0-rc.1.1"),
     ],
@@ -41,8 +41,8 @@ let package = Package(
                 "Fluent",
                 "SQLKit",
                 "FluentPostgresDriver",
-                "FluentMySQLDriver",
-                "FluentSQLiteDriver",
+                //"FluentMySQLDriver",
+                //"FluentSQLiteDriver",
                 "Queues"
             ],
             path: "Sources"
