@@ -116,7 +116,7 @@ extension FluentQueue: Queue {
                 SQLBinaryExpression(left: SQLColumn("\(Self.model.$id.key)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )
             // Gross abuse
-            .orWhere(SQLReturning.returningAll)
+            .orWhere(SQLReturning.returning(column: Self.model.$id.key))
             .query
         
         let (sql, binds) = db.serialize(query)
