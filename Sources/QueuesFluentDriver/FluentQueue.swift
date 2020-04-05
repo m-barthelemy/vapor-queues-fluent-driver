@@ -6,12 +6,12 @@ import SQLKit
 struct FluentQueue {
     let db: Database?
     let context: QueueContext
-    let useForUpdateSkipLocked: Bool
+    let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool = true
 }
 
 extension FluentQueue: Queue {
-    static let model = JobModel(id: UUID.generateRandom(), key: "", data: Data())
+    static let model = JobModel(id: UUID.generateRandom(), key: "")
     
     func get(_ id: JobIdentifier) -> EventLoopFuture<JobData> {
         guard let database = db else {
@@ -25,8 +25,8 @@ extension FluentQueue: Queue {
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMapThrowing { job in
-                let jobData = try JSONDecoder().decode(JobData.self, from: job.data)
-                return jobData
+                let jobData = job.data//try JSONDecoder().decode(JobData.self, from: job.data)
+                return jobData!
         }
     }
     
@@ -38,7 +38,7 @@ extension FluentQueue: Queue {
             return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
         }
         do {
-            let data = try JSONEncoder().encode(jobStorage)
+            let data = jobStorage //try JSONEncoder().encode(jobStorage)
             return JobModel(id: uuid, key: key, data: data).save(on: database).map { return }
         }
         catch {
@@ -95,7 +95,7 @@ extension FluentQueue: Queue {
         }
         let db = database as! SQLDatabase
             
-        var subQuery = db
+        var selectQuery = db
             .select ()
             .column ("\(Self.model.$id.key)")
             .from   (JobModel.schema)
@@ -103,10 +103,10 @@ extension FluentQueue: Queue {
             .orderBy("\(Self.model.$createdAt.path.first!)")
             .limit  (1)
         
-        if (self.useForUpdateSkipLocked) {
-            subQuery = subQuery.lockingClause(SQLForUpdateSkipLocked.forUpdateSkipLocked)
+        if (self.dbType != .sqlite) {
+            selectQuery = selectQuery.lockingClause(SQLForUpdateSkipLocked.forUpdateSkipLocked)
         }
-        let subQueryGroup = SQLGroupExpression.init(subQuery.query)
+        let subQueryGroup = SQLGroupExpression.init(selectQuery.query)
         
         let query = db
             .update(JobModel.schema)
@@ -119,6 +119,22 @@ extension FluentQueue: Queue {
             .orWhere(SQLReturning.returning(column: Self.model.$id.key))
             .query
         
+        // UPDATE `jobs`
+        // SET `state` = ?, `updated_at` = ?
+        // WHERE `id` = (SELECT `id` FROM `jobs` WHERE `state` = ? ORDER BY `created_at` ASC LIMIT 1 FOR UPDATE SKIP LOCKED)
+        // OR 1=2
+        // RETURNING "id"
+        
+        // -- should be --
+        
+        // BEGIN TRANSACTION
+        // SELECT `id` FROM `jobs` WHERE `state` = ? ORDER BY `created_at` ASC LIMIT 1 FOR UPDATE SKIP LOCKED;
+        // UPDATE `jobs`
+        // SET
+        //   `state` = ?,
+        //   `updated_at` = ?
+        // WHERE `id` = xxxxxxx;
+        // COMMIT
         let (sql, binds) = db.serialize(query)
 
         /*let driver = dbDriver()

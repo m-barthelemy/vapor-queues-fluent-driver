@@ -81,21 +81,27 @@ app.migrations.add(JobModelMigrate())
 
 Load the `QueuesFluentDriver` driver:
 ```swift    
-app.queues.use(.fluent(.psql))
+app.queues.use(.fluent(.psql, dbType: .postgres))
 ```
 
 
 &nbsp;
 
+### Using a custom Database 
 You can optionally create a dedicated Database, set to `isdefault: false` and with a custom `DatabaseID` and use it for your Queues.
 In that case you would initialize the Queues configuration like this:
 
 ```swift
 let queuesDb = DatabaseID(string: "my_queues_db")
 app.databases.use(.postgres(configuration: dbConfig), as: queuesDb, isDefault: false)
-app.queues.use(.fluent(queuesDb))
+app.queues.use(.fluent(queuesDb, dbType: .postgres))
 ```
 
+### Customizing the jobs table name
+By default the `JobModelMigrate` migration will create a table named `jobs`. You can customize the name during the migration :
+```swift
+app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
+```
 
 ## Caveats
 

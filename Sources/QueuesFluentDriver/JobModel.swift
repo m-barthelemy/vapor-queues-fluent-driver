@@ -1,5 +1,6 @@
 import Foundation
 import Fluent
+import Queues
 
 enum JobState: String, Codable, CaseIterable {
     /// Job created but should NOT be picked up for execution yet
@@ -27,7 +28,8 @@ class JobModel: Model {
     
     /// The Job data
     @Field(key: "data")
-    var data: Data
+    var data: JobData?
+    //var data: Data
     
     /// The current state of the Job
     @Field(key: "state")
@@ -45,10 +47,9 @@ class JobModel: Model {
     var deletedAt: Date?
     
     
-    init(id: UUID, key: String, data: Data) {
+    init(id: UUID, key: String, data: JobData? = nil) {
         self.id = id
         self.key = key
-        self.data = data
         self.state = .initial
     }
 }
