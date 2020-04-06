@@ -28,8 +28,8 @@ class JobModel: Model {
     
     /// The Job data
     @Field(key: "data")
-    var data: JobData?
-    //var data: Data
+    //var data: JobData?
+    var data: Data
     
     /// The current state of the Job
     @Field(key: "state")
@@ -50,7 +50,7 @@ class JobModel: Model {
     init(id: UUID, key: String, data: JobData? = nil) {
         self.id = id
         self.key = key
-        //self.data = data
+        self.data = try! JSONEncoder().encode(data)
         self.state = .initial
     }
 }
