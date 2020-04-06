@@ -122,12 +122,19 @@ extension FluentQueue: Queue {
             .orWhere(SQLReturning.returning(column: Self.model.$id.key))
             .query
         
-        
-        db.execute(sql: query) { (row) in
+        var id: UUID?
+        return db.execute(sql: query) { (row) -> Void in
             print("••• columns: \(row.allColumns)")
-            let id = try? row.decode(column: "\(Self.model.$id.key)", as: UUID.self)
+            id = try? row.decode(column: "\(Self.model.$id.key)", as: UUID.self)
             print("••• returned id \(id)")
         }
+        .map {
+            if (id != nil) {
+                return JobIdentifier(string: id!.uuidString)
+            }
+            return nil
+        }
+    
         // UPDATE `jobs`
         // SET `state` = ?, `updated_at` = ?
         // WHERE `id` = (SELECT `id` FROM `jobs` WHERE `state` = ? ORDER BY `created_at` ASC LIMIT 1 FOR UPDATE SKIP LOCKED)
@@ -144,7 +151,6 @@ extension FluentQueue: Queue {
         //   `updated_at` = ?
         // WHERE `id` = xxxxxxx;
         // COMMIT
-        let (sql, binds) = db.serialize(query)
 
         /*let driver = dbDriver()
         return driver.rawQuery(db: database, query: query).map { id in
@@ -155,9 +161,12 @@ extension FluentQueue: Queue {
                 return nil
             }
         }*/
+        
+        /*let (sql, binds) = db.serialize(query)
         return db.query(db: db, sql: sql, binds: binds).first().optionalMap { row in
             return JobIdentifier(string: (try! row.decode(column: "\(Self.model.$id.key)", as: UUID.self)).uuidString)
         }
+        */
     }
     
 }
