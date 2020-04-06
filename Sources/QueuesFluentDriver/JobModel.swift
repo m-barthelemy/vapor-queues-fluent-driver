@@ -48,10 +48,9 @@ class JobModel: Model {
     
     
     init(id: UUID, key: String, data: JobData? = nil) {
-        print("•••••• new job id=\(id)")
         self.id = id
         self.key = key
-        self.data = data
+        //self.data = data
         self.state = .initial
     }
 }

@@ -13,7 +13,7 @@ public struct JobModelMigrate: Migration {
         return database.schema(JobModel.schema)
             .id()
             .field(model.$key.key,               .string,   .required)
-            .field(model.$data.key,              .json,     .required)
+            .field(model.$data.key,              .json) //,     .required)
             .field(model.$state.key,             .string,   .required)
             .field(model.$createdAt.path.first!, .datetime)
             .field(model.$updatedAt.path.first!, .datetime)
