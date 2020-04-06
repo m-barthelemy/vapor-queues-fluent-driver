@@ -90,6 +90,7 @@ extension FluentQueue: Queue {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         let db = database as! SQLDatabase
+        print("••••• dialect name: \(db.dialect.name)")
         
         var selectQuery = db
             .select ()
