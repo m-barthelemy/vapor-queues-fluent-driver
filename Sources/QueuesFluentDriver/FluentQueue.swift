@@ -105,7 +105,7 @@ extension FluentQueue: Queue {
         
         var popProvider: PopQueryProtocol!
         switch (self.dbType) {
-            case .postgres:
+            case .postgresql:
                 popProvider = PostgresPop()
             case .mysql:
                 popProvider = MySQLPop()

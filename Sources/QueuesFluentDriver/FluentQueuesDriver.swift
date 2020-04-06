@@ -1,9 +1,10 @@
 import Fluent
+import SQLKit
 import Queues
 
 
-public enum QueuesFluentDbType {
-    case postgres
+public enum QueuesFluentDbType: String {
+    case postgresql
     case mysql
     case sqlite
 }
@@ -13,10 +14,10 @@ public struct FluentQueuesDriver {
     let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool
     
-    init(on databaseId: DatabaseID, dbType: QueuesFluentDbType, useSoftDeletes: Bool) {
+    init(on databaseId: DatabaseID, useSoftDeletes: Bool) {
         self.databaseId = databaseId
-        self.dbType = dbType
         self.useSoftDeletes = useSoftDeletes
+        self.dbType = .postgresql
     }
 }
 
@@ -29,7 +30,7 @@ extension FluentQueuesDriver: QueuesDriver {
         return FluentQueue(
             db: db,
             context: context,
-            dbType: self.dbType
+            dbType: QueuesFluentDbType(rawValue: (db as! SQLDatabase).dialect.name)!
         )
     }
     
