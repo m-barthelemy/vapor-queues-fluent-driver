@@ -122,6 +122,12 @@ extension FluentQueue: Queue {
             .orWhere(SQLReturning.returning(column: Self.model.$id.key))
             .query
         
+        
+        db.execute(sql: query) { (row) in
+            print("••• columns: \(row.allColumns)")
+            let id = try? row.decode(column: "\(Self.model.$id.key)", as: UUID.self)
+            print("••• returned id \(id)")
+        }
         // UPDATE `jobs`
         // SET `state` = ?, `updated_at` = ?
         // WHERE `id` = (SELECT `id` FROM `jobs` WHERE `state` = ? ORDER BY `created_at` ASC LIMIT 1 FOR UPDATE SKIP LOCKED)

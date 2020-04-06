@@ -50,6 +50,7 @@ class JobModel: Model {
     init(id: UUID, key: String, data: JobData? = nil) {
         self.id = id
         self.key = key
+        self.data = data
         self.state = .initial
     }
 }
