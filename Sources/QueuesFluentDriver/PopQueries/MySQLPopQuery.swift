@@ -3,7 +3,7 @@ import SQLKit
 import Fluent
 import Queues
 
-class MySQLPop : PopQueryProtocol {
+final class MySQLPop : PopQueryProtocol {
     func pop(db: Database, select: SQLExpression) -> EventLoopFuture<UUID?> {
         db.transaction { transaction in
             let database = transaction as! SQLDatabase
@@ -12,7 +12,6 @@ class MySQLPop : PopQueryProtocol {
             return database.execute(sql: select) { (row) -> Void in
                 print("••• columns: \(row.allColumns)")
                 id = try? row.decode(column: "\(FluentQueue.model.$id.key)", as: UUID.self)
-                print("••• returned id \(id)")
             }
             .flatMap {
                 if (id != nil) {
@@ -27,7 +26,6 @@ class MySQLPop : PopQueryProtocol {
                 }
                 return database.eventLoop.makeSucceededFuture(nil)
             }
-
             
         }
     }
