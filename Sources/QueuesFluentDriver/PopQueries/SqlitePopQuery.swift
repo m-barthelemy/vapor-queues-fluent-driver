@@ -3,6 +3,6 @@ import SQLKit
 import Fluent
 import Queues
 
-struct SqlitePop : MySQLPop {
+final class SqlitePop : MySQLPop {
     
 }

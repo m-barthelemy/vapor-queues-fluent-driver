@@ -3,7 +3,7 @@ import SQLKit
 import Fluent
 import Queues
 
-struct MySQLPop : PopQueryProtocol {
+class MySQLPop : PopQueryProtocol {
     func pop(db: Database, select: SQLExpression) -> EventLoopFuture<UUID?> {
         db.transaction { transaction in
             let database = transaction as! SQLDatabase

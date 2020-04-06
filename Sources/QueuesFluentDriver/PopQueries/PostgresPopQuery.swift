@@ -3,7 +3,7 @@ import SQLKit
 import Fluent
 import Queues
 
-struct PostgresPop : PopQueryProtocol {
+final class PostgresPop : PopQueryProtocol {
     func pop(db: Database, select: SQLExpression) -> EventLoopFuture<UUID?> {
         let database = db as! SQLDatabase
         let subQueryGroup = SQLGroupExpression.init(select)
