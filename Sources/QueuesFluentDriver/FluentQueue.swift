@@ -95,7 +95,6 @@ extension FluentQueue: Queue {
             .select ()
             .column ("\(Self.model.$id.key)")
             .from   (JobModel.schema)
-            //.where  ("\(Self.model.$state.key)", SQLBinaryOperator.equal, JobState.pending)
             .where("\(Self.model.$state.key)", SQLBinaryOperator.equal, SQLBind.init(JobState.pending))
             .orderBy("\(Self.model.$createdAt.path.first!)")
             .limit  (1)
@@ -115,7 +114,5 @@ extension FluentQueue: Queue {
         return popProvider.pop(db: database, select: selectQuery.query).optionalMap { id in
             return JobIdentifier(string: id.uuidString)
         }
-        
     }
-    
 }
