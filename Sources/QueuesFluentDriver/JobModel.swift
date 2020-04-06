@@ -20,7 +20,7 @@ class JobModel: Model {
     
     /// The unique Job uuid
     @ID(key: .id)
-    public var id: UUID?
+    var id: UUID?
     
     /// The Job key
     @Field(key: "key")

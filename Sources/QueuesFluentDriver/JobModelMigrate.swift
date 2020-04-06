@@ -11,7 +11,7 @@ public struct JobModelMigrate: Migration {
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         let model = FluentQueue.model
         return database.schema(JobModel.schema)
-            .field(model.$id.key,                .uuid,     .identifier(auto: false))
+            .id()
             .field(model.$key.key,               .string,   .required)
             .field(model.$data.key,              .json,     .required)
             .field(model.$state.key,             .string,   .required)

@@ -11,7 +11,6 @@ final class MySQLPop : PopQueryProtocol {
             var id: UUID?
             return database.execute(sql: select) { (row) -> Void in
                 id = try? row.decode(column: "\(FluentQueue.model.$id.key)", as: UUID.self)
-                print("••• columns: \(row.allColumns), id=\(id)")
             }
             .flatMap {
                 if (id != nil) {
