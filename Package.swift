@@ -25,7 +25,8 @@ let package = Package(
             dependencies: [
                 "Fluent",
                 "SQLKit",
-                "Queues"
+                "Queues",
+                "Vapor"
             ],
             path: "Sources"
         )

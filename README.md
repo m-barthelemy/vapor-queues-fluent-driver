@@ -16,7 +16,7 @@ This package should be compatible with:
 - Postgres >= 9.5
 - Mysql >= 8.0.1
 - MariaDB >= 10.3
-- Sqlite **(soon)**
+- Sqlite
 
 
 ## Usage
@@ -40,7 +40,7 @@ let package = Package(
     ],
     dependencies: [
         ...
-        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.1.2"),
+        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.1.11"),
         ...
     ],
     targets: [
@@ -79,7 +79,7 @@ app.migrations.add(JobModelMigrate())
     
 &nbsp;
 
-Load the `QueuesFluentDriver` driver:
+Finally. load the `QueuesFluentDriver` driver:
 ```swift    
 app.queues.use(.fluent(.psql, dbType: .postgres))
 ```
@@ -105,6 +105,8 @@ app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
 
 ## Caveats
 
+
+### Polling interval
 By default, the Vapor Queues package creates 2 workers per CPU core, and each worker would periodically poll the database for jobs to be run.
 On a recent 4 cores MacBook, this means 8 workers querying the database every second by default.
 
@@ -115,10 +117,11 @@ app.queues.configuration.refreshInterval = TimeAmount.seconds(custom_value)
 ```
 
 
+### Soft Deletes
 By default, this driver uses Fluent's "soft delete" feature, meaning that completed jobs stay in the database, but with a non-null `deleted_at` value.
 If you want to delete the entry as soon as job is completed, you can set the `useSoftDeletes` option to `false`:
 
 ```swift
-app.queues.use(.fluent(.psql, useSoftDeletes: false))
+app.queues.use(.fluent(.psql, dbType: .postgres, useSoftDeletes: false))
 ```
 
