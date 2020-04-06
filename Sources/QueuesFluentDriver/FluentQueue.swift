@@ -8,10 +8,10 @@ struct FluentQueue {
     let context: QueueContext
     let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool = true
+    static let model = JobModel(id: UUID.generateRandom(), key: "")
 }
 
 extension FluentQueue: Queue {
-    static let model = JobModel(id: UUID.generateRandom(), key: "")
     
     func get(_ id: JobIdentifier) -> EventLoopFuture<JobData> {
         guard let database = db else {
@@ -103,70 +103,23 @@ extension FluentQueue: Queue {
             .where("\(Self.model.$state.key)", SQLBinaryOperator.equal, SQLBind.init(JobState.pending))
             .orderBy("\(Self.model.$createdAt.path.first!)")
             .limit  (1)
-        
         if (self.dbType != .sqlite) {
             selectQuery = selectQuery.lockingClause(SQLForUpdateSkipLocked.forUpdateSkipLocked)
         }
-        let subQueryGroup = SQLGroupExpression.init(selectQuery.query)
         
-        let query = db
-            .update(JobModel.schema)
-            //.set("\(Self.model.$state.key)", to: JobState.processing)
-            .set(SQLColumn.init("\(Self.model.$state.key)"), to: SQLBind.init(JobState.processing))
-            //.set("\(Self.model.$updatedAt.path.first!)", to: Date())
-            .set(SQLColumn.init("\(Self.model.$updatedAt.path.first!)"), to: SQLBind.init(Date()))
-            .where(
-                SQLBinaryExpression(left: SQLColumn("\(Self.model.$id.key)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
-            )
-            // Gross abuse
-            .orWhere(SQLReturning.returning(column: Self.model.$id.key))
-            .query
-        
-        var id: UUID?
-        return db.execute(sql: query) { (row) -> Void in
-            print("••• columns: \(row.allColumns)")
-            id = try? row.decode(column: "\(Self.model.$id.key)", as: UUID.self)
-            print("••• returned id \(id)")
+        var popProvider: PopQueryProtocol!
+        switch (self.dbType) {
+            case .postgres:
+                popProvider = PostgresPop()
+            case .mysql:
+                popProvider = MySQLPop()
+            default:
+                return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
-        .map {
-            if (id != nil) {
-                return JobIdentifier(string: id!.uuidString)
-            }
-            return nil
+        return popProvider.pop(db: database, select: selectQuery.query).optionalMap { id in
+                return JobIdentifier(string: id.uuidString)
         }
-    
-        // UPDATE `jobs`
-        // SET `state` = ?, `updated_at` = ?
-        // WHERE `id` = (SELECT `id` FROM `jobs` WHERE `state` = ? ORDER BY `created_at` ASC LIMIT 1 FOR UPDATE SKIP LOCKED)
-        // OR 1=2
-        // RETURNING "id"
-        
-        // -- should be --
-        
-        // BEGIN TRANSACTION
-        // SELECT `id` FROM `jobs` WHERE `state` = ? ORDER BY `created_at` ASC LIMIT 1 FOR UPDATE SKIP LOCKED;
-        // UPDATE `jobs`
-        // SET
-        //   `state` = ?,
-        //   `updated_at` = ?
-        // WHERE `id` = xxxxxxx;
-        // COMMIT
 
-        /*let driver = dbDriver()
-        return driver.rawQuery(db: database, query: query).map { id in
-            if(id != nil ) {
-                return JobIdentifier(string: id!.uuidString)
-            }
-            else {
-                return nil
-            }
-        }*/
-        
-        /*let (sql, binds) = db.serialize(query)
-        return db.query(db: db, sql: sql, binds: binds).first().optionalMap { row in
-            return JobIdentifier(string: (try! row.decode(column: "\(Self.model.$id.key)", as: UUID.self)).uuidString)
-        }
-        */
     }
     
 }
