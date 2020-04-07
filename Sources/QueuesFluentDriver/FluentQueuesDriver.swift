@@ -2,7 +2,6 @@ import Fluent
 import SQLKit
 import Queues
 
-
 public enum QueuesFluentDbType: String {
     case postgresql
     case mysql
@@ -30,7 +29,8 @@ extension FluentQueuesDriver: QueuesDriver {
         return FluentQueue(
             db: db,
             context: context,
-            dbType: QueuesFluentDbType(rawValue: (db as! SQLDatabase).dialect.name)!
+            dbType: QueuesFluentDbType(rawValue: (db as! SQLDatabase).dialect.name)!,
+            useSoftDeletes: self.useSoftDeletes
         )
     }
     

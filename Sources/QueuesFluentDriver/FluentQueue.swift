@@ -7,7 +7,7 @@ struct FluentQueue {
     let db: Database?
     let context: QueueContext
     let dbType: QueuesFluentDbType
-    let useSoftDeletes: Bool = true
+    let useSoftDeletes: Bool
     static let model = JobModel(id: UUID.generateRandom(), key: "")
 }
 
