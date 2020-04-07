@@ -16,7 +16,15 @@ This package should be compatible with:
 - Postgres >= 9.5
 - Mysql >= 8.0.1
 - MariaDB >= 10.3
-- Sqlite
+
+&nbsp;
+
+:rotating_light: At the moment the Fluent MySQL driver seems to have issues with `Data` (`blob`) fields. 
+This means that currently (QueuesFluentDriver 0.2.0, fluent-mysql-driver 4.0.0-rc) **ONLY POSTGRES IS SUPPORTED  BY THIS DRIVER** 
+
+&nbsp;
+
+Sqlite could be made to work in theory, but it would currently require that there is only one single Queues worker polling for jobs - and that the database has `journal_mode` set to `wal`. In short: it won't work, don't try.
 
 
 ## Usage
@@ -40,7 +48,7 @@ let package = Package(
     ],
     dependencies: [
         ...
-        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.1.11"),
+        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.2.0"),
         ...
     ],
     targets: [
@@ -81,7 +89,7 @@ app.migrations.add(JobModelMigrate())
 
 Finally. load the `QueuesFluentDriver` driver:
 ```swift    
-app.queues.use(.fluent(.psql, dbType: .postgres))
+app.queues.use(.fluent(.psql))
 ```
 
 
@@ -94,7 +102,7 @@ In that case you would initialize the Queues configuration like this:
 ```swift
 let queuesDb = DatabaseID(string: "my_queues_db")
 app.databases.use(.postgres(configuration: dbConfig), as: queuesDb, isDefault: false)
-app.queues.use(.fluent(queuesDb, dbType: .postgres))
+app.queues.use(.fluent(queuesDb))
 ```
 
 ### Customizing the jobs table name
@@ -122,6 +130,6 @@ By default, this driver uses Fluent's "soft delete" feature, meaning that comple
 If you want to delete the entry as soon as job is completed, you can set the `useSoftDeletes` option to `false`:
 
 ```swift
-app.queues.use(.fluent(.psql, dbType: .postgres, useSoftDeletes: false))
+app.queues.use(.fluent(.psql, useSoftDeletes: false))
 ```
 

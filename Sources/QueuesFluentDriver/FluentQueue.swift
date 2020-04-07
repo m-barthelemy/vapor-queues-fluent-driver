@@ -37,8 +37,8 @@ extension FluentQueue: Queue {
         guard let uuid = UUID(uuidString: id.string) else {
             return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
         }
-        let data = jobStorage //try JSONEncoder().encode(jobStorage)
-        return JobModel(id: uuid, key: key, data: data).save(on: database)
+        //let data = try! JSONEncoder().encode(jobStorage)
+        return JobModel(id: uuid, key: key, data: jobStorage).save(on: database)
             .map { return }
     }
     
@@ -109,7 +109,9 @@ extension FluentQueue: Queue {
             case .mysql:
                 popProvider = MySQLPop()
             case .sqlite:
-                popProvider = SqlitePop()            
+                popProvider = SqlitePop()
+            default:
+                return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         return popProvider.pop(db: database, select: selectQuery.query).optionalMap { id in
             return JobIdentifier(string: id.uuidString)

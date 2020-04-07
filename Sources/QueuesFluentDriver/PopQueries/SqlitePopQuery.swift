@@ -8,10 +8,9 @@ final class SqlitePop : PopQueryProtocol {
         let database = db as! SQLDatabase
         //let beginImmediateTrxn = database.raw("BEGIN IMMEDIATE").
         
-        return database.raw(SQLQueryString("BEGIN IMMEDIATE")).run().flatMap { void in
+        //return database.raw(SQLQueryString("BEGIN IMMEDIATE")).run().flatMap { void in
             var id: UUID?
             return database.execute(sql: select) { (row) -> Void in
-                print("••• columns: \(row.allColumns)")
                 id = try? row.decode(column: "\(FluentQueue.model.$id.key)", as: UUID.self)
             }
             .flatMap {
@@ -31,6 +30,6 @@ final class SqlitePop : PopQueryProtocol {
                 }
                 return database.eventLoop.makeSucceededFuture(nil)
             }
-        }
+        //}
     }
 }
