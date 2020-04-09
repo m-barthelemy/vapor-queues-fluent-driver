@@ -66,19 +66,6 @@ let package = Package(
 
 &nbsp;
 
-In your app configuration (for example, `configure.swift`), make sure you first configure your Fluent database(s):
-```swift
-import Vapor
-import QueuesFluentDriver
-...
-...
-// Your normal Vapor4 database configuration for your application.
-app.databases.use(.postgres(configuration: dbConfig), as: .psql, isDefault: true)
-...
-```
-
-&nbsp;
-
 This package needs a table, named `jobs`, to store the Vapor Queues jobs. Add `JobModelMigrate` to your migrations:
 ```swift
 // Ensure the table for storing jobs is created
@@ -89,7 +76,7 @@ app.migrations.add(JobModelMigrate())
 
 Finally. load the `QueuesFluentDriver` driver:
 ```swift    
-app.queues.use(.fluent(.psql))
+app.queues.use(.fluent())
 ```
 
 
@@ -130,6 +117,6 @@ By default, this driver uses Fluent's "soft delete" feature, meaning that comple
 If you want to delete the entry as soon as job is completed, you can set the `useSoftDeletes` option to `false`:
 
 ```swift
-app.queues.use(.fluent(.psql, useSoftDeletes: false))
+app.queues.use(.fluent(useSoftDeletes: false))
 ```
 
