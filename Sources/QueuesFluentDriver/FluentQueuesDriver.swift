@@ -9,11 +9,11 @@ public enum QueuesFluentDbType: String {
 }
 
 public struct FluentQueuesDriver {
-    let databaseId: DatabaseID
+    let databaseId: DatabaseID?
     let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool
     
-    init(on databaseId: DatabaseID, useSoftDeletes: Bool) {
+    init(on databaseId: DatabaseID? = nil, useSoftDeletes: Bool) {
         self.databaseId = databaseId
         self.useSoftDeletes = useSoftDeletes
         self.dbType = .postgresql

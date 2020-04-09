@@ -110,7 +110,7 @@ extension FluentQueue: Queue {
                 popProvider = MySQLPop()
             case .sqlite:
                 popProvider = SqlitePop()
-            default:
+            @unknown default:
                 return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         return popProvider.pop(db: database, select: selectQuery.query).optionalMap { id in
