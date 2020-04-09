@@ -9,8 +9,8 @@ final class PostgresPop : PopQueryProtocol {
         let subQueryGroup = SQLGroupExpression.init(select)
         let query = database
             .update(JobModel.schema)
-            .set(SQLColumn.init("\(FluentQueue.model.$state.key)"), to: SQLBind.init(JobState.processing))
-            .set(SQLColumn.init("\(FluentQueue.model.$updatedAt.path.first!)"), to: SQLBind.init(Date()))
+            .set(SQLColumn("\(FluentQueue.model.$state.key)"), to: SQLBind(JobState.processing))
+            .set(SQLColumn("\(FluentQueue.model.$updatedAt.path.first!)"), to: SQLBind(Date()))
             .where(
                 SQLBinaryExpression(left: SQLColumn("\(FluentQueue.model.$id.key)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )

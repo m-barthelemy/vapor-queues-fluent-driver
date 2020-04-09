@@ -66,7 +66,6 @@ extension FluentQueue: Queue {
         }
     }
     
-    /// Updates a Job state from `initial` to `pending` to signal that it is ready to be picked up for processing.
     func push(_ id: JobIdentifier) -> EventLoopFuture<Void> {
         guard let database = db else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
@@ -74,15 +73,11 @@ extension FluentQueue: Queue {
         guard let uuid = UUID(uuidString: id.string) else {
             return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
         }
-        return database.query(JobModel.self)
-            .filter(\.$id == uuid)
-            .filter(\.$state == .initial)
-            .first()
-            .unwrap(or: QueuesFluentError.missingJob(id))
-            .flatMap { job in
-                job.state = .pending
-                return job.update(on: database)
-        }
+        let sqlDb = database as! SQLDatabase
+        return sqlDb.update(JobModel.schema)
+            .set(SQLColumn("\(FluentQueue.model.$state.key)"), to: SQLBind.init(JobState.pending))
+            .where(SQLColumn("\(FluentQueue.model.$id.key)"), .equal, SQLBind(uuid))
+            .run()
     }
     
     func pop() -> EventLoopFuture<JobIdentifier?> {

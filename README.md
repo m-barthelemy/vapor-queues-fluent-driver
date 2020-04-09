@@ -74,7 +74,7 @@ app.migrations.add(JobModelMigrate())
     
 &nbsp;
 
-Finally. load the `QueuesFluentDriver` driver:
+Finally, load the `QueuesFluentDriver` driver:
 ```swift    
 app.queues.use(.fluent())
 ```
