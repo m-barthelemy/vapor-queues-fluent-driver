@@ -1,13 +1,16 @@
 import Fluent
 import SQLKit
 
-enum SQLForUpdateSkipLocked: SQLExpression {
+enum SQLSkipLocked: SQLExpression {
     case forUpdateSkipLocked
+    case forShareSkipLocked
     
     public func serialize(to serializer: inout SQLSerializer) {
         switch self {
             case .forUpdateSkipLocked:
                 serializer.write("FOR UPDATE SKIP LOCKED")
+            case .forShareSkipLocked:
+                serializer.write("FOR SHARE SKIP LOCKED")
         }
     }
 }

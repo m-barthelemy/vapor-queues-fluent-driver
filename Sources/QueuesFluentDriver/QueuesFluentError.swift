@@ -5,8 +5,9 @@ enum QueuesFluentError: Error {
     case missingJob(_ id: JobIdentifier)
     /// The JobIdentifier is not a valid UUID
     case invalidIdentifier
-    /// Error encoding the jon Payload to JSON
+    /// Error encoding the json Payload to JSON
     case jobDataEncodingError(_ message: String)
+    case jobDataDecodingError(_ message: String)
     /// The given DatabaseID doesn't match any existing database configured in the Vapor app.
     case databaseNotFound
 }

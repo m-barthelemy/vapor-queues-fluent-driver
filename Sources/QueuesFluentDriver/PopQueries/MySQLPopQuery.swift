@@ -16,7 +16,7 @@ final class MySQLPop : PopQueryProtocol {
                 if (id != nil) {
                     let updateQuery = database
                         .update(JobModel.schema)
-                        .set(SQLColumn.init("\(FluentQueue.model.$state.key)"), to: SQLBind.init(JobState.processing))
+                        .set(SQLColumn.init("\(FluentQueue.model.$state.key)"), to: SQLBind.init(QueuesFluentJobState.processing))
                         .set(SQLColumn.init("\(FluentQueue.model.$updatedAt.path.first!)"), to: SQLBind.init(Date()))
                         .where(SQLColumn.init("\(FluentQueue.model.$id.key)"), .equal, SQLBind.init(id!))
                         .query

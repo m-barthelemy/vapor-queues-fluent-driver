@@ -4,7 +4,7 @@
 
 
 
-This Vapor Queues driver is an alternative to the (default) Redis driver, allowing you to use Fluent to store the Queues jobs into your database.
+This Vapor Queues driver is an alternative to the (default) Redis driver, allowing you to use Fluent to store the Queues jobs into your relational database.
 
 
 ## Compatibility
@@ -42,13 +42,10 @@ let package = Package(
     platforms: [
         .macOS(.v10_15)
     ],
-    products: [
-        .executable(name: "Run", targets: ["Run"]),
-        .library(name: "App", targets: ["App"]),
-    ],
+    ...
     dependencies: [
         ...
-        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.2.0"),
+        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.2.5"),
         ...
     ],
     targets: [
@@ -57,8 +54,7 @@ let package = Package(
             "QueuesFluentDriver",
             ...
         ]),
-        .target(name: "Run", dependencies: ["App"]),
-        .testTarget(name: "AppTests", dependencies: ["App", "XCTVapor"])
+        ...
     ]
 )
 
@@ -98,6 +94,30 @@ By default the `JobModelMigrate` migration will create a table named `jobs`. You
 app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
 ```
 
+### Listing jobs
+If needed, you can list the jobs stored into the database:
+
+```swift
+let queue = req.queue as! FluentQueue
+
+// Get the pending jobs
+queue.list()
+
+// Get the ones currently running
+queue.list(state: .processing)
+
+// Get the completed ones (only if you didn't set `useSoftDeletes` to `false`)
+queue.list(state: .completed)
+
+// For a custom Queue
+queue.list(queue: "myCustomQueue")
+```
+
+
+
+&nbsp;
+
+
 ## Caveats
 
 
@@ -120,3 +140,4 @@ If you want to delete the entry as soon as job is completed, you can set the `us
 app.queues.use(.fluent(useSoftDeletes: false))
 ```
 
+When using the default soft deletes option, it is probably a good idea to cleanup the completed jobs from time to time.

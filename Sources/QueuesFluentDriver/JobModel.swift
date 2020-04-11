@@ -2,7 +2,7 @@ import Foundation
 import Fluent
 import Queues
 
-enum JobState: String, Codable, CaseIterable {
+public enum QueuesFluentJobState: String, Codable, CaseIterable {
     /// Ready to be oicked up for execution
     case pending
     case processing
@@ -31,7 +31,7 @@ class JobModel: Model {
     
     /// The current state of the Job
     @Field(key: "state")
-    var state: JobState
+    var state: QueuesFluentJobState
     
     /// The created timestamp
     @Timestamp(key: "created_at", on: .create)
