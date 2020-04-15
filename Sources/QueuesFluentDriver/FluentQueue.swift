@@ -8,7 +8,6 @@ struct FluentQueue {
     let context: QueueContext
     let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool
-    static let model = JobModel(id: UUID.generateRandom(), key: "")
 }
 
 extension FluentQueue: Queue {
@@ -75,8 +74,8 @@ extension FluentQueue: Queue {
         let sqlDb = database as! SQLDatabase
         return sqlDb
             .update (JobModel.schema)
-            .set    (SQLColumn("\(FluentQueue.model.$state.key)"), to: SQLBind(QueuesFluentJobState.pending))
-            .where  (SQLColumn("\(FluentQueue.model.$id.key)"), .equal, SQLBind(uuid))
+            .set    (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.pending))
+            .where  (SQLColumn("\(FieldKey.id)"), .equal, SQLBind(uuid))
             .run()
     }
     
@@ -88,10 +87,10 @@ extension FluentQueue: Queue {
         
         var selectQuery = db
             .select ()
-            .column ("\(Self.model.$id.key)")
+            .column ("\(FieldKey.id)")
             .from   (JobModel.schema)
-            .where  ("\(Self.model.$state.key)", .equal, SQLBind(QueuesFluentJobState.pending))
-            .orderBy("\(Self.model.$createdAt.path.first!)")
+            .where  ("\(FieldKey.state)", .equal, SQLBind(QueuesFluentJobState.pending))
+            .orderBy("\(FieldKey.createdAt)")
             .limit  (1)
         if (self.dbType != .sqlite) {
             selectQuery = selectQuery.lockingClause(SQLSkipLocked.forUpdateSkipLocked)
@@ -105,8 +104,6 @@ extension FluentQueue: Queue {
                 popProvider = MySQLPop()
             case .sqlite:
                 popProvider = SqlitePop()
-            @unknown default:
-                return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         return popProvider.pop(db: database, select: selectQuery.query).optionalMap { id in
             return JobIdentifier(string: id.uuidString)
@@ -122,9 +119,9 @@ extension FluentQueue: Queue {
         var query = db
             .select()
             .from   (JobModel.schema)
-            .where  ("\(Self.model.$state.key)", .equal, SQLBind(state))
+            .where  ("\(FieldKey.state)", .equal, SQLBind(state))
         if(queue != nil) {
-            query = query.where("\(Self.model.$key.key)", .equal, SQLBind(queue!))
+            query = query.where("\(FieldKey.key)", .equal, SQLBind(queue!))
         }
         if (self.dbType != .sqlite) {
             query = query.lockingClause(SQLSkipLocked.forShareSkipLocked)
@@ -132,7 +129,7 @@ extension FluentQueue: Queue {
         var pendingJobs = [JobData]()
         return db.execute(sql: query.query) { (row) -> Void in
             do {
-                let jobData = try row.decode(column: "\(FluentQueue.model.$data.key)", as: JobData.self)
+                let jobData = try row.decode(column: "\(FieldKey.data)", as: JobData.self)
                 pendingJobs.append(jobData)
             }
             catch {
