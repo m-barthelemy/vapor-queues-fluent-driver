@@ -26,6 +26,7 @@ extension FluentQueuesDriver: QueuesDriver {
             .application
             .databases
             .database(databaseId, logger: context.logger, on: context.eventLoop)
+        
         return FluentQueue(
             db: db,
             context: context,

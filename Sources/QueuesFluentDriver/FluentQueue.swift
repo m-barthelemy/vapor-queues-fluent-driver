@@ -53,12 +53,11 @@ extension FluentQueue: Queue {
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMap { job in
-                if(self.useSoftDeletes) {
+                if self.useSoftDeletes {
                     job.state = .completed
                     job.deletedAt = Date()
                     return job.update(on: database)
-                }
-                else {
+                } else {
                     return job.delete(force: true, on: database)
                 }
         }
@@ -73,9 +72,9 @@ extension FluentQueue: Queue {
         }
         let sqlDb = database as! SQLDatabase
         return sqlDb
-            .update (JobModel.schema)
-            .set    (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.pending))
-            .where  (SQLColumn("\(FieldKey.id)"), .equal, SQLBind(uuid))
+            .update(JobModel.schema)
+            .set   (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.pending))
+            .where (SQLColumn("\(FieldKey.id)"), .equal, SQLBind(uuid))
             .run()
     }
     
@@ -92,7 +91,7 @@ extension FluentQueue: Queue {
             .where  ("\(FieldKey.state)", .equal, SQLBind(QueuesFluentJobState.pending))
             .orderBy("\(FieldKey.createdAt)")
             .limit  (1)
-        if (self.dbType != .sqlite) {
+        if self.dbType != .sqlite {
             selectQuery = selectQuery.lockingClause(SQLSkipLocked.forUpdateSkipLocked)
         }
         
@@ -120,10 +119,10 @@ extension FluentQueue: Queue {
             .select()
             .from   (JobModel.schema)
             .where  ("\(FieldKey.state)", .equal, SQLBind(state))
-        if(queue != nil) {
-            query = query.where("\(FieldKey.key)", .equal, SQLBind(queue!))
+        if let queue = queue {
+            query = query.where("\(FieldKey.key)", .equal, SQLBind(queue))
         }
-        if (self.dbType != .sqlite) {
+        if self.dbType != .sqlite {
             query = query.lockingClause(SQLSkipLocked.forShareSkipLocked)
         }
         var pendingJobs = [JobData]()

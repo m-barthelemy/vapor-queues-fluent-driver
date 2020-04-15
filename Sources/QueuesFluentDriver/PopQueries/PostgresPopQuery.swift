@@ -21,8 +21,7 @@ final class PostgresPop : PopQueryProtocol {
         var id: UUID?
         return database.execute(sql: query) { (row) -> Void in
             id = try? row.decode(column: "\(FieldKey.id)", as: UUID.self)
-        }
-        .map {
+        }.map {
             return id
         }
     }
