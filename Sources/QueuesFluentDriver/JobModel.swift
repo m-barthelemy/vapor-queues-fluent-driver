@@ -10,6 +10,16 @@ public enum QueuesFluentJobState: String, Codable, CaseIterable {
     case completed
 }
 
+extension FieldKey {
+    static var key: Self { "key" }
+    static var data: Self { "data" }
+    static var state: Self { "state" }
+
+    static var createdAt: Self { "created_at" }
+    static var updatedAt: Self { "updated_at" }
+    static var deletedAt: Self { "deleted_at" }
+}
+
 class JobModel: Model {
     public required init() {}
     
@@ -21,31 +31,31 @@ class JobModel: Model {
     var id: UUID?
     
     /// The Job key
-    @Field(key: "key")
+    @Field(key: .key)
     var key: String
     
     /// The Job data
-    @Field(key: "data")
+    @Field(key: .data)
     //var data: JobData?
     var data: Data
     
     /// The current state of the Job
-    @Field(key: "state")
+    @Field(key: .state)
     var state: QueuesFluentJobState
     
     /// The created timestamp
-    @Timestamp(key: "created_at", on: .create)
+    @Timestamp(key: .createdAt, on: .create)
     var createdAt: Date?
     
     /// The updated timestamp
-    @Timestamp(key: "updated_at", on: .update)
+    @Timestamp(key: .updatedAt, on: .update)
     var updatedAt: Date?
     
-    @Timestamp(key: "deleted_at", on: .delete)
+    @Timestamp(key: .deletedAt, on: .delete)
     var deletedAt: Date?
     
     
-    init(id: UUID, key: String, data: JobData? = nil) {
+    init(id: UUID, key: String, data: JobData) {
         self.id = id
         self.key = key
         self.data = try! JSONEncoder().encode(data)
