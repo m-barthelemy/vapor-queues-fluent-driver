@@ -15,11 +15,8 @@ extension FluentQueue: Queue {
         guard let database = db else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
-        guard let uuid = UUID(uuidString: id.string) else {
-            return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
-        }
         return database.query(JobModel.self)
-            .filter(\.$id == uuid)
+            .filter(\.$jobId == id.string)
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMapThrowing { job in
@@ -32,24 +29,19 @@ extension FluentQueue: Queue {
         guard let database = db else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
-        guard let uuid = UUID(uuidString: id.string) else {
-            return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
-        }
         //let data = try! JSONEncoder().encode(jobStorage)
-        return JobModel(id: uuid, key: key, data: jobStorage).save(on: database)
-            //.map { return }
+        return JobModel(jobId: id.string, queue: queueName.string, data: jobStorage)
+            .save(on: database)
     }
     
     func clear(_ id: JobIdentifier) -> EventLoopFuture<Void> {
         guard let database = db else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
-        guard let uuid = UUID(uuidString: id.string) else {
-            return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
-        }
         // This does the equivalent of a Fluent Softdelete but sets the `state` to `completed`
         return database.query(JobModel.self)
-            .filter(\.$id == uuid)
+            .filter(\.$jobId == id.string)
+            .filter(\.$state != QueuesFluentJobState.completed)
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMap { job in
@@ -67,17 +59,15 @@ extension FluentQueue: Queue {
         guard let database = db else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
-        guard let uuid = UUID(uuidString: id.string) else {
-            return database.eventLoop.makeFailedFuture(QueuesFluentError.invalidIdentifier)
-        }
         let sqlDb = database as! SQLDatabase
         return sqlDb
             .update(JobModel.schema)
             .set   (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.pending))
-            .where (SQLColumn("\(FieldKey.id)"), .equal, SQLBind(uuid))
+            .where (SQLColumn("\(FieldKey.jobId)"), .equal, SQLBind(id.string))
             .run()
     }
     
+    /// Currently selects the oldest job pending execution
     func pop() -> EventLoopFuture<JobIdentifier?> {
         guard let database = db else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
@@ -86,9 +76,10 @@ extension FluentQueue: Queue {
         
         var selectQuery = db
             .select ()
-            .column ("\(FieldKey.id)")
+            .column ("\(FieldKey.jobId)")
             .from   (JobModel.schema)
             .where  ("\(FieldKey.state)", .equal, SQLBind(QueuesFluentJobState.pending))
+            .where  ("\(FieldKey.queue)", .equal, SQLBind(self.queueName.string))
             .orderBy("\(FieldKey.createdAt)")
             .limit  (1)
         if self.dbType != .sqlite {
@@ -105,7 +96,7 @@ extension FluentQueue: Queue {
                 popProvider = SqlitePop()
         }
         return popProvider.pop(db: database, select: selectQuery.query).optionalMap { id in
-            return JobIdentifier(string: id.uuidString)
+            return JobIdentifier(string: id)
         }
     }
     
@@ -120,7 +111,7 @@ extension FluentQueue: Queue {
             .from   (JobModel.schema)
             .where  ("\(FieldKey.state)", .equal, SQLBind(state))
         if let queue = queue {
-            query = query.where("\(FieldKey.key)", .equal, SQLBind(queue))
+            query = query.where("\(FieldKey.queue)", .equal, SQLBind(queue))
         }
         if self.dbType != .sqlite {
             query = query.lockingClause(SQLSkipLocked.forShareSkipLocked)

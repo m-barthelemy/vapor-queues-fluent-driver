@@ -4,7 +4,7 @@ import Fluent
 import Queues
 
 final class PostgresPop : PopQueryProtocol {
-    func pop(db: Database, select: SQLExpression) -> EventLoopFuture<UUID?> {
+    func pop(db: Database, select: SQLExpression) -> EventLoopFuture<String?> {
         let database = db as! SQLDatabase
         let subQueryGroup = SQLGroupExpression.init(select)
         let query = database
@@ -12,15 +12,15 @@ final class PostgresPop : PopQueryProtocol {
             .set    (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.processing))
             .set    (SQLColumn("\(FieldKey.updatedAt)"), to: SQLBind(Date()))
             .where  (
-                SQLBinaryExpression(left: SQLColumn("\(FieldKey.id)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
+                SQLBinaryExpression(left: SQLColumn("\(FieldKey.jobId)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )
             // Gross abuse
-            .orWhere(SQLReturning.returning(column: FieldKey.id))
+            .orWhere(SQLReturning.returning(column: FieldKey.jobId))
             .query
         
-        var id: UUID?
+        var id: String?
         return database.execute(sql: query) { (row) -> Void in
-            id = try? row.decode(column: "\(FieldKey.id)", as: UUID.self)
+            id = try? row.decode(column: "\(FieldKey.jobId)", as: String.self)
         }.map {
             return id
         }

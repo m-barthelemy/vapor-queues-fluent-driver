@@ -10,6 +10,7 @@ enum SQLSkipLocked: SQLExpression {
             case .forUpdateSkipLocked:
                 serializer.write("FOR UPDATE SKIP LOCKED")
             case .forShareSkipLocked:
+                // This is the "lightest" locking that is supported by both Postgres and Mysql
                 serializer.write("FOR SHARE SKIP LOCKED")
         }
     }
@@ -26,7 +27,8 @@ enum SQLReturning: SQLExpression {
             case .returningAll:
                 serializer.write("1=2 RETURNING *")
             case .returning(let column):
-                serializer.write("1=2 RETURNING \"\(column.description)\"")
+                serializer.write("1=2 RETURNING ")
+                SQLColumn(column.description).serialize(to: &serializer)
         }
     }
 }

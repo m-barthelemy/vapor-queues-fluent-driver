@@ -3,7 +3,7 @@ import Fluent
 import Queues
 
 public enum QueuesFluentJobState: String, Codable, CaseIterable {
-    /// Ready to be oicked up for execution
+    /// Ready to be picked up for execution
     case pending
     case processing
     /// Executed, regardless if it was successful or not
@@ -11,7 +11,8 @@ public enum QueuesFluentJobState: String, Codable, CaseIterable {
 }
 
 extension FieldKey {
-    static var key: Self { "key" }
+    static var jobId: Self { "job_id" }
+    static var queue: Self { "queue" }
     static var data: Self { "data" }
     static var state: Self { "state" }
 
@@ -23,16 +24,18 @@ extension FieldKey {
 class JobModel: Model {
     public required init() {}
     
-    /// Properties
-    public static var schema = "jobs"
+    public static var schema = "_jobs"
     
     /// The unique Job uuid
     @ID(key: .id)
     var id: UUID?
     
+    @Field(key: .jobId)
+    var jobId: String?
+    
     /// The Job key
-    @Field(key: .key)
-    var key: String
+    @Field(key: .queue)
+    var queue: String
     
     /// The Job data
     @Field(key: .data)
@@ -43,11 +46,9 @@ class JobModel: Model {
     @Field(key: .state)
     var state: QueuesFluentJobState
     
-    /// The created timestamp
     @Timestamp(key: .createdAt, on: .create)
     var createdAt: Date?
     
-    /// The updated timestamp
     @Timestamp(key: .updatedAt, on: .update)
     var updatedAt: Date?
     
@@ -55,9 +56,9 @@ class JobModel: Model {
     var deletedAt: Date?
     
     
-    init(id: UUID, key: String, data: JobData) {
-        self.id = id
-        self.key = key
+    init(jobId: String, queue: String, data: JobData) {
+        self.jobId = jobId
+        self.queue = queue
         self.data = try! JSONEncoder().encode(data)
         self.state = .pending
     }
