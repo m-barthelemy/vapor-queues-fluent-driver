@@ -14,18 +14,13 @@ This package makes use of some relatively recent, non standard SQL extensions ad
 This package should be compatible with:
 
 - Postgres >= 9.5
-- Mysql >= 8.0.1
-- MariaDB >= 10.3
+- Mysql >= 8.0.1 (:rotating_light: requires mysql-nio >= 1.0.0-rc.1.2)
+- MariaDB >= 10.3 (:rotating_light: requires mysql-nio >= 1.0.0-rc.1.2)
+
+
+> Sqlite could be made to work in theory, but it would require that there is only one single Queues worker polling for jobs - and that the database has `journal_mode` set to `wal`. In short: it won't work, don't try.
 
 &nbsp;
-
-:rotating_light: At the moment the Fluent MySQL driver seems to have issues with `Data` (`blob`) fields. 
-This means that currently (QueuesFluentDriver 0.2.0, fluent-mysql-driver 4.0.0-rc) **ONLY POSTGRES IS SUPPORTED  BY THIS DRIVER** 
-
-&nbsp;
-
-Sqlite could be made to work in theory, but it would currently require that there is only one single Queues worker polling for jobs - and that the database has `journal_mode` set to `wal`. In short: it won't work, don't try.
-
 
 ## Usage
 
@@ -77,6 +72,8 @@ app.queues.use(.fluent())
 
 
 &nbsp;
+
+## Options
 
 ### Using a custom Database 
 You can optionally create a dedicated Database, set to `isdefault: false` and with a custom `DatabaseID` and use it for your Queues.
