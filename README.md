@@ -86,7 +86,7 @@ app.queues.use(.fluent(queuesDb))
 ```
 
 ### Customizing the jobs table name
-By default the `JobModelMigrate` migration will create a table named `jobs`. You can customize the name during the migration :
+By default the `JobModelMigrate` migration will create a table named `_jobs`. You can customize the name during the migration :
 ```swift
 app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
 ```
