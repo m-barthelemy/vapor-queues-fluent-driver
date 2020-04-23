@@ -17,10 +17,10 @@ final class SqlitePop : PopQueryProtocol {
                 if let id = id {
                     let updateQuery = database
                         .update (JobModel.schema)
-                        .set    (SQLColumn.init("\(FieldKey.state)"), to: SQLBind.init(QueuesFluentJobState.processing))
-                        .set    (SQLColumn.init("\(FieldKey.updatedAt)"), to: SQLBind.init(Date()))
-                        .where  (SQLColumn.init("\(FieldKey.jobId)"), .equal, SQLBind.init(id))
-                        .where  (SQLColumn.init("\(FieldKey.state)"), .equal, SQLBind.init(QueuesFluentJobState.pending))
+                        .set    (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.processing))
+                        .set    (SQLColumn("\(FieldKey.updatedAt)"), to: SQLBind(Date()))
+                        .where  (SQLColumn("\(FieldKey.jobId)"), .equal, SQLBind(id))
+                        .where  (SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
                         .query
                     return database.execute(sql: updateQuery) { (row) in }
                         .flatMap {
