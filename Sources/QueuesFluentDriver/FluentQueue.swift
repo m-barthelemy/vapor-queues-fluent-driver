@@ -131,10 +131,3 @@ extension FluentQueue: Queue {
         }
     }
 }
-
-public struct JobInfo: Codable {
-    var id: UUID
-    var name: String
-    var createdAt: Date
-    var completedAt: Date?
-}

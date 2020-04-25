@@ -14,8 +14,7 @@ final class PostgresPop : PopQueryProtocol {
             .where  (
                 SQLBinaryExpression(left: SQLColumn("\(FieldKey.jobId)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )
-            // Gross abuse
-            .orWhere(SQLReturning.returning(column: FieldKey.jobId))
+            .returning(.column(FieldKey.jobId))
             .query
         
         var id: String?

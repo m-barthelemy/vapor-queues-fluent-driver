@@ -16,19 +16,54 @@ enum SQLSkipLocked: SQLExpression {
     }
 }
 
-// We're really abusing here but not sure how to do it in a cleaner way
-enum SQLReturning: SQLExpression {
+enum SqlReturning : SQLExpression {
     /// `RETURNING *`
-    case returningAll
-    case returning(column: FieldKey)
+    case all
+    case column(_ column: FieldKey)
+    case sqlColumn(_ column: SQLColumn)
     
     public func serialize(to serializer: inout SQLSerializer) {
         switch self {
-            case .returningAll:
-                serializer.write("1=2 RETURNING *")
-            case .returning(let column):
-                serializer.write("1=2 RETURNING ")
+            case .all:
+                serializer.write("RETURNING *")
+            case .column(let column):
+                serializer.write("RETURNING ")
                 SQLColumn(column.description).serialize(to: &serializer)
+            case .sqlColumn(let column):
+                serializer.write("RETURNING ")
+                column.serialize(to: &serializer)
         }
+    }
+}
+
+struct SQLUpdateReturningExpression: SQLExpression {
+    public let left: SQLExpression
+    public let right: SQLExpression
+    
+    public init(left: SQLExpression, right: SqlReturning) {
+        self.left = left
+        self.right = right
+    }
+    
+    public func serialize(to serializer: inout SQLSerializer) {
+        self.left.serialize(to: &serializer)
+        serializer.write(" ")
+        self.right.serialize(to: &serializer)
+        
+    }
+}
+
+
+extension SQLUpdateBuilder {
+    func returning(_ expression: SqlReturning) -> Self {
+        if let existing = self.predicate {
+            self.predicate = SQLUpdateReturningExpression(
+                left: existing,
+                right: expression
+            )
+        } else {
+            self.predicate = expression
+        }
+        return self
     }
 }
