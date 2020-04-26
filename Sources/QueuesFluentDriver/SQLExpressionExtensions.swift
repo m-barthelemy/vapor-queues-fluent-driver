@@ -53,7 +53,6 @@ struct SQLUpdateReturningExpression: SQLExpression {
     }
 }
 
-
 extension SQLUpdateBuilder {
     func returning(_ expression: SqlReturning) -> Self {
         if let existing = self.predicate {

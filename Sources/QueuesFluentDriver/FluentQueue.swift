@@ -78,8 +78,8 @@ extension FluentQueue: Queue {
             .select ()
             .column ("\(FieldKey.jobId)")
             .from   (JobModel.schema)
-            .where  ("\(FieldKey.state)", .equal, SQLBind(QueuesFluentJobState.pending))
-            .where  ("\(FieldKey.queue)", .equal, SQLBind(self.queueName.string))
+            .where  (SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
+            .where  (SQLColumn("\(FieldKey.queue)"), .equal, SQLBind(self.queueName.string))
             .orderBy("\(FieldKey.createdAt)")
             .limit  (1)
         if self.dbType != .sqlite {
@@ -109,9 +109,9 @@ extension FluentQueue: Queue {
         var query = db
             .select()
             .from   (JobModel.schema)
-            .where  ("\(FieldKey.state)", .equal, SQLBind(state))
+            .where  (SQLColumn("\(FieldKey.state)"), .equal, SQLBind(state))
         if let queue = queue {
-            query = query.where("\(FieldKey.queue)", .equal, SQLBind(queue))
+            query = query.where(SQLColumn("\(FieldKey.queue)"), .equal, SQLBind(queue))
         }
         if self.dbType != .sqlite {
             query = query.lockingClause(SQLSkipLocked.forShareSkipLocked)

@@ -1,6 +1,6 @@
 # QueuesFluentDriver
 
-**Note**: This package is still experimental. Please do open an issue if something doesn't work as expected. 
+**Note**: This package is still young. Please do open an issue if something doesn't work as expected. 
 
 
 
@@ -40,7 +40,7 @@ let package = Package(
     ...
     dependencies: [
         ...
-        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.0"),
+        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.2"),
         ...
     ],
     targets: [
