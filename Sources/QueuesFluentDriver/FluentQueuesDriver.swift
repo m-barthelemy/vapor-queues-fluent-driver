@@ -12,11 +12,13 @@ public struct FluentQueuesDriver {
     let databaseId: DatabaseID?
     let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool
+    let eventLoopGroup: EventLoopGroup
     
-    init(on databaseId: DatabaseID? = nil, useSoftDeletes: Bool) {
+    init(on databaseId: DatabaseID? = nil, useSoftDeletes: Bool, on: EventLoopGroup) {
         self.databaseId = databaseId
         self.useSoftDeletes = useSoftDeletes
         self.dbType = .postgresql
+        self.eventLoopGroup = on
     }
 }
 
@@ -35,5 +37,8 @@ extension FluentQueuesDriver: QueuesDriver {
         )
     }
     
-    public func shutdown() {}
+    public func shutdown() {
+        // What are we supposed to do here?
+        try? self.eventLoopGroup.syncShutdownGracefully()
+    }
 }

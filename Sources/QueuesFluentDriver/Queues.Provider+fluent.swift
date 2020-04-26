@@ -9,7 +9,7 @@ extension Application.Queues.Provider {
     public static func fluent(_ databaseId: DatabaseID? = nil, useSoftDeletes: Bool = true) -> Self {
         .init {
             $0.queues.use(custom:
-                FluentQueuesDriver(on: databaseId, useSoftDeletes: useSoftDeletes)
+                FluentQueuesDriver(on: databaseId, useSoftDeletes: useSoftDeletes, on: $0.eventLoopGroup)
             )
         }
     }
