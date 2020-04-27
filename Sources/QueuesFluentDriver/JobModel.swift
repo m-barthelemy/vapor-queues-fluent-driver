@@ -56,10 +56,10 @@ class JobModel: Model {
     var deletedAt: Date?
     
     
-    init(jobId: String, queue: String, data: JobData) {
+    init(jobId: String, queue: String, data: JobData) throws {
         self.jobId = jobId
         self.queue = queue
-        self.data = try! JSONEncoder().encode(data)
+        self.data = try JSONEncoder().encode(data)
         self.state = .pending
     }
 }

@@ -29,10 +29,14 @@ extension FluentQueuesDriver: QueuesDriver {
             .databases
             .database(databaseId, logger: context.logger, on: context.eventLoop)
         
+        // How do we report that something goes wrong here? Since makeQueue cannot throw.
+        let dialect = (db as? SQLDatabase)?.dialect.name ?? "unknown"
+        let dbType = QueuesFluentDbType(rawValue: dialect) ?? .none
+        
         return FluentQueue(
             db: db,
             context: context,
-            dbType: QueuesFluentDbType(rawValue: (db as! SQLDatabase).dialect.name)!,
+            dbType: dbType,
             useSoftDeletes: self.useSoftDeletes
         )
     }
