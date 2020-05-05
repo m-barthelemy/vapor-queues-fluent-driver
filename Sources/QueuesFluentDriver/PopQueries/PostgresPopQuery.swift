@@ -1,13 +1,12 @@
 import Foundation
 import SQLKit
 import Fluent
-import Queues
 
 final class PostgresPop : PopQueryProtocol {
     func pop(db: Database, select: SQLExpression) -> EventLoopFuture<String?> {
-        let database = db as! SQLDatabase
+        let db = db as! SQLDatabase
         let subQueryGroup = SQLGroupExpression.init(select)
-        let query = database
+        let query = db
             .update (JobModel.schema)
             .set    (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.processing))
             .set    (SQLColumn("\(FieldKey.updatedAt)"), to: SQLBind(Date()))
@@ -18,7 +17,7 @@ final class PostgresPop : PopQueryProtocol {
             .query
         
         var id: String?
-        return database.execute(sql: query) { (row) -> Void in
+        return db.execute(sql: query) { (row) -> Void in
             id = try? row.decode(column: "\(FieldKey.jobId)", as: String.self)
         }.map {
             return id
