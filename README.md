@@ -95,6 +95,8 @@ app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
 If needed, you can list the jobs stored into the database:
 
 ```swift
+import QueuesFluentDriver
+
 let queue = req.queue as! FluentQueue
 
 // Get the pending jobs
