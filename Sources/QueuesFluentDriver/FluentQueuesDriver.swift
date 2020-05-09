@@ -34,8 +34,8 @@ extension FluentQueuesDriver: QueuesDriver {
         let dbType = QueuesFluentDbType(rawValue: dialect) ?? .none
         
         return FluentQueue(
-            db: db,
             context: context,
+            db: db,
             dbType: dbType,
             useSoftDeletes: self.useSoftDeletes
         )
