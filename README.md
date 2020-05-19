@@ -29,7 +29,7 @@ Add it to the  `Package.swift`  of your Vapor4 project:
 
 ```swift
 
-// swift-tools-version:5.1
+// swift-tools-version:5.2
 import PackageDescription
 
 let package = Package(
@@ -40,13 +40,13 @@ let package = Package(
     ...
     dependencies: [
         ...
-        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.5"),
+        .package(url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.6"),
         ...
     ],
     targets: [
         .target(name: "App", dependencies: [
             ...
-            "QueuesFluentDriver",
+            .product(name: "QueuesFluentDriver", package: "QueuesFluentDriver"),
             ...
         ]),
         ...
@@ -57,19 +57,19 @@ let package = Package(
 
 &nbsp;
 
-This package needs a table, named `jobs`, to store the Vapor Queues jobs. Add `JobModelMigrate` to your migrations:
+This package needs a table, named `_jobs` by default, to store the Vapor Queues jobs. Add `JobModelMigrate` to your migrations:
 ```swift
 // Ensure the table for storing jobs is created
 app.migrations.add(JobModelMigrate())
 ```    
-    
+
 &nbsp;
 
 Finally, load the `QueuesFluentDriver` driver:
 ```swift    
 app.queues.use(.fluent())
 ```
-
+Make sure you call `app.databases.use(...)` **before** calling `app.queues.use(.fluent())`!
 
 &nbsp;
 

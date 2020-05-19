@@ -5,16 +5,13 @@ import SQLKit
 
 public struct FluentQueue {
     public let context: QueueContext
-    let db: Database?
-    let dbType: QueuesFluentDbType?
+    let db: Database
+    let dbType: QueuesFluentDbType
     let useSoftDeletes: Bool
 }
 
 extension FluentQueue: Queue {
     public func get(_ id: JobIdentifier) -> EventLoopFuture<JobData> {
-        guard let db = db else {
-            return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
-        }
         return db.query(JobModel.self)
             .filter(\.$jobId == id.string)
             .filter(\.$state != .pending)
@@ -26,9 +23,6 @@ extension FluentQueue: Queue {
     }
     
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
-        guard let db = db else {
-            return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
-        }
         //let data = try! JSONEncoder().encode(jobStorage)
         do {
             let jobModel = try JobModel(jobId: id.string, queue: queueName.string, data: jobStorage)
@@ -41,9 +35,6 @@ extension FluentQueue: Queue {
     }
     
     public func clear(_ id: JobIdentifier) -> EventLoopFuture<Void> {
-        guard let db = db else {
-            return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
-        }
         // This does the equivalent of a Fluent Softdelete but sets the `state` to `completed`
         return db.query(JobModel.self)
             .filter(\.$jobId == id.string)
@@ -54,15 +45,15 @@ extension FluentQueue: Queue {
                 if self.useSoftDeletes {
                     job.state = .completed
                     job.deletedAt = Date()
-                    return job.update(on: db)
+                    return job.update(on: self.db)
                 } else {
-                    return job.delete(force: true, on: db)
+                    return job.delete(force: true, on: self.db)
                 }
         }
     }
     
     public func push(_ id: JobIdentifier) -> EventLoopFuture<Void> {
-        guard let db = db, let sqlDb = db as? SQLDatabase else {
+        guard let sqlDb = db as? SQLDatabase else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         return sqlDb
@@ -74,7 +65,7 @@ extension FluentQueue: Queue {
     
     /// Currently selects the oldest job pending execution
     public func pop() -> EventLoopFuture<JobIdentifier?> {
-        guard let db = db, let sqlDb = db as? SQLDatabase else {
+        guard let sqlDb = db as? SQLDatabase else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         
@@ -98,7 +89,7 @@ extension FluentQueue: Queue {
                 popProvider = MySQLPop()
             case .sqlite:
                 popProvider = SqlitePop()
-            case .none:
+            default:
                 return db.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         return popProvider.pop(db: db, select: selectQuery.query).optionalMap { id in
@@ -108,7 +99,7 @@ extension FluentQueue: Queue {
     
     /// /!\ This is a non standard extension.
     public func list(queue: String? = nil, state: QueuesFluentJobState = .pending) -> EventLoopFuture<[JobData]> {
-        guard let db = db, let sqlDb = db as? SQLDatabase else {
+        guard let sqlDb = db as? SQLDatabase else {
             return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         var query = sqlDb
@@ -132,7 +123,7 @@ extension FluentQueue: Queue {
                 jobs.append(jobData)
             }
             catch {
-                return db.eventLoop.makeFailedFuture(QueuesFluentError.jobDataDecodingError("\(error)"))
+                return self.db.eventLoop.makeFailedFuture(QueuesFluentError.jobDataDecodingError("\(error)"))
                     .whenSuccess {$0}
             }
         }
