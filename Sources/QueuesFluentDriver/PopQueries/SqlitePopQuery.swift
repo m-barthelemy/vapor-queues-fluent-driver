@@ -25,10 +25,10 @@ final class SqlitePop : PopQueryProtocol {
                     .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
                     .query
                 return db.execute(sql: updateQuery) { (row) in }
-                    .flatMap {
-                        return db.raw(SQLQueryString("COMMIT")).run().map {
+                    .map {
+                        //return db.raw(SQLQueryString("COMMIT")).run().map {
                             return id
-                        }
+                        //}
                     }
             }
         //}
