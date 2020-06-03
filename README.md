@@ -14,11 +14,12 @@ This package makes use of some relatively recent, non standard SQL extensions ad
 This package should be compatible with:
 
 - Postgres >= 9.5
-- Mysql >= 8.0.1 (:rotating_light: requires mysql-nio >= 1.0.0-rc.1.2)
-- MariaDB >= 10.3 (:rotating_light: requires mysql-nio >= 1.0.0-rc.1.2)
+- Mysql >= 8.0.1
+- MariaDB >= 10.3
 
+> Mysql requires mysql-nio >= 1.0.0-rc.1.2. If you are using fluent-mysql-driver >= 4.0.0-rc.2 this requirement will be satisfied automatically.</small>
 
-> Sqlite could be made to work in theory, but it would require that there is only one single Queues worker polling for jobs - and that the database has `journal_mode` set to `wal`. In short: it won't work, don't try.
+> Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
 &nbsp;
 
