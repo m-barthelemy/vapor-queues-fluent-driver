@@ -13,10 +13,10 @@ public struct FluentQueuesDriver {
     let useSoftDeletes: Bool
     let eventLoopGroup: EventLoopGroup
     
-    init(on databaseId: DatabaseID? = nil, useSoftDeletes: Bool, on: EventLoopGroup) {
+    init(on databaseId: DatabaseID? = nil, useSoftDeletes: Bool, on eventLoopGroup: EventLoopGroup) {
         self.databaseId = databaseId
         self.useSoftDeletes = useSoftDeletes
-        self.eventLoopGroup = on
+        self.eventLoopGroup = eventLoopGroup
     }
 }
 

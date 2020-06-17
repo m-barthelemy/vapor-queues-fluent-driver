@@ -1,7 +1,1 @@
-import XCTest
-
-import QueuesFluentDriverTests
-
-var tests = [XCTestCaseEntry]()
-tests += QueuesFluentDriverTests.allTests()
-XCTMain(tests)
+fatalError("Please use swift test --enable-test-discovery to run the tests instead")

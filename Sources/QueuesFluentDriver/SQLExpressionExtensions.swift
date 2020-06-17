@@ -16,7 +16,7 @@ enum SQLSkipLocked: SQLExpression {
     }
 }
 
-enum SqlReturning : SQLExpression {
+enum SqlReturning: SQLExpression {
     /// `RETURNING *`
     case all
     case column(_ column: FieldKey)
