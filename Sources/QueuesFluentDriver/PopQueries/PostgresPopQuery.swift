@@ -3,7 +3,7 @@ import Foundation
 import SQLKit
 import Fluent
 
-final class PostgresPop : PopQueryProtocol {
+final class PostgresPop: PopQueryProtocol {
     func pop(db: Database, select: SQLExpression) -> EventLoopFuture<String?> {
         let db = db as! SQLDatabase
         let subQueryGroup = SQLGroupExpression.init(select)

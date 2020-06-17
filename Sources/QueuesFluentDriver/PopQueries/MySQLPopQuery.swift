@@ -2,7 +2,7 @@ import Foundation
 import SQLKit
 import Fluent
 
-final class MySQLPop : PopQueryProtocol {
+final class MySQLPop: PopQueryProtocol {
     // MySQL is a bit challenging since it doesn't support updating a table that is
     //  used in a subquery.
     // So we first select, then update, with the whole process wrapped in a transaction.

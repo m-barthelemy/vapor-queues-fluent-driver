@@ -23,15 +23,13 @@ extension FluentQueue: Queue {
     }
     
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
-        //let data = try! JSONEncoder().encode(jobStorage)
         do {
             let jobModel = try JobModel(jobId: id.string, queue: queueName.string, data: jobStorage)
             return jobModel.save(on: db)
         }
         catch {
             return db.eventLoop.makeFailedFuture(QueuesFluentError.jobDataEncodingError(error.localizedDescription))
-        }
-        
+        }        
     }
     
     public func clear(_ id: JobIdentifier) -> EventLoopFuture<Void> {

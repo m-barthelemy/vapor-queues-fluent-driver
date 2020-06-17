@@ -2,7 +2,7 @@ import Foundation
 import SQLKit
 import Fluent
 
-final class SqlitePop : PopQueryProtocol {
+final class SqlitePop: PopQueryProtocol {
     func pop(db: Database, select: SQLExpression) -> EventLoopFuture<String?> {
         db.transaction { transaction in
             let database = transaction as! SQLDatabase
