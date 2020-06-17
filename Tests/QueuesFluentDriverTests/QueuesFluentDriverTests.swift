@@ -8,8 +8,4 @@ final class QueuesFluentDriverTests: XCTestCase {
         // results.
         //XCTAssertEqual(QueuesFluentDriver().text, "Hello, World!")
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }
