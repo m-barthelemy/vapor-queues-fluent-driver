@@ -29,9 +29,10 @@ let package = Package(
                 .product(name: "Queues", package: "queues")
             ],
             path: "Sources"
-        )
-        /*.testTarget(
+        ),
+        .testTarget(
             name: "QueuesFluentDriverTests",
-            dependencies: ["QueuesFluentDriver"]),*/
+            dependencies: ["QueuesFluentDriver"]
+        ),
     ]
 )
