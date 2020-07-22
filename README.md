@@ -21,9 +21,13 @@ This package should be compatible with:
 
 > Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
+> Postgres: The 0.3.8 release of this package supports any current Vapor4 Fluent and `fluent-postgres-driver` release.
+>  The 1.0.0-rc.1 release relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. If you use Postgres, until `fluent-postgres-driver` is updated to require an updated release of `postgres-kit`, **you need to add the following to your Vapor project**: `.package(url: "https://github.com/vapor/postgres-kit.git", from: "2.1.0"),`
+
 &nbsp;
 
 ## Usage
+
 
 
 Add it to the  `Package.swift`  of your Vapor4 project: 
@@ -41,7 +45,7 @@ let package = Package(
     ...
     dependencies: [
         ...
-        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.7"),
+        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.8"),
         ...
     ],
     targets: [
@@ -128,7 +132,7 @@ On a recent 4 cores MacBook, this means 8 workers querying the database every se
 You can change the jobs polling interval by calling:
 
 ```swift
-app.queues.configuration.refreshInterval = TimeAmount.seconds(custom_value)
+app.queues.configuration.refreshInterval = .seconds(custom_value)
 ```
 
 

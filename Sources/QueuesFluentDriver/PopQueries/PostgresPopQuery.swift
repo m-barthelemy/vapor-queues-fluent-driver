@@ -14,7 +14,7 @@ final class PostgresPop: PopQueryProtocol {
             .where  (
                 SQLBinaryExpression(left: SQLColumn("\(FieldKey.jobId)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )
-            .returning(.column(FieldKey.jobId))
+            .returning(SQLColumn("\(FieldKey.jobId)"))
             .query
         
         var id: String?
