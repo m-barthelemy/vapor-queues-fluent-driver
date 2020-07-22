@@ -22,7 +22,7 @@ This package should be compatible with:
 > Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
 > Postgres: The 0.3.8 release of this package supports any current Vapor4 Fluent and `fluent-postgres-driver` release.
->  The 1.0.0-rc.1 release relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. If you use Postgres, until `fluent-postgres-driver` is updated to require an updated release of `postgres-kit`, **you need to add the following to your Vapor project**: `.package(url: "https://github.com/vapor/postgres-kit.git", from: "2.1.0"),`
+>  The 1.0.0-rc.1 release relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. If you use Postgres, until `fluent-postgres-driver` is updated to require an updated release of `postgres-kit`, **make sure you use a release of postgres-kit that is at least 2.1.0**
 
 &nbsp;
 
