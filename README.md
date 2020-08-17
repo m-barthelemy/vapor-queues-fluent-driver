@@ -125,7 +125,7 @@ queue.list(queue: "myCustomQueue")
 ## Caveats
 
 
-### Polling interval
+### Polling interval and number of workers
 By default, the Vapor Queues package creates 2 workers per CPU core, and each worker would periodically poll the database for jobs to be run.
 On a recent 4 cores MacBook, this means 8 workers querying the database every second by default.
 
@@ -134,6 +134,8 @@ You can change the jobs polling interval by calling:
 ```swift
 app.queues.configuration.refreshInterval = .seconds(custom_value)
 ```
+
+With Queues >=1.4.0, you can also configure the number of workers that will be started by setting `app.queues.configuration.workerCount`
 
 
 ### Soft Deletes
