@@ -49,7 +49,5 @@ extension FluentQueuesDriver: QueuesDriver {
     }
     
     public func shutdown() {
-        // What are we supposed to do here?
-        try? self.eventLoopGroup.syncShutdownGracefully()
     }
 }
