@@ -17,12 +17,9 @@ This package should be compatible with:
 - Mysql >= 8.0.1
 - MariaDB >= 10.3
 
-> Mysql requires mysql-nio >= 1.0.0-rc.1.2. If you are using fluent-mysql-driver >= 4.0.0-rc.2 this requirement will be satisfied automatically.</small>
-
 > Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
-> Postgres: The 0.3.8 release of this package supports any current Vapor4 Fluent and `fluent-postgres-driver` release.
->  The 1.0.0-rc.1 release relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. If you use Postgres, until `fluent-postgres-driver` is updated to require an updated release of `postgres-kit`, **make sure you use a release of postgres-kit that is at least 2.1.0**
+> Postgres: This package relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. If you use Postgres, until `fluent-postgres-driver` is updated to require an updated release of `postgres-kit`, **make sure you use a release of postgres-kit that is at least 2.1.0**
 
 &nbsp;
 
@@ -45,7 +42,7 @@ let package = Package(
     ...
     dependencies: [
         ...
-        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "0.3.8"),
+        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "1.0.0-rc.2"),
         ...
     ],
     targets: [
