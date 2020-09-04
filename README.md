@@ -13,7 +13,7 @@ This package makes use of some relatively recent, non standard SQL extensions ad
 
 This package should be compatible with:
 
-- Postgres >= 9.5
+- Postgres >= 11
 - Mysql >= 8.0.1
 - MariaDB >= 10.3
 
