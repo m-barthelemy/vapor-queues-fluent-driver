@@ -1,9 +1,5 @@
 # QueuesFluentDriver
 
-**Note**: This package is still young. Please do open an issue if something doesn't work as expected. 
-
-
-
 This Vapor Queues driver is an alternative to the (default) Redis driver, allowing you to use Fluent to store the Queues jobs into your relational database.
 
 
