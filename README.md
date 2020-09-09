@@ -15,7 +15,7 @@ This package should be compatible with:
 
 > Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
-> Postgres: This package relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. If you use Postgres, until `fluent-postgres-driver` is updated to require an updated release of `postgres-kit`, **make sure you use a release of postgres-kit that is at least 2.1.0**
+> Postgres: This package relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. **Make sure you use a release of postgres-kit that is at least 2.1.0**
 
 &nbsp;
 
