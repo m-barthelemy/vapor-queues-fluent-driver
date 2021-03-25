@@ -25,6 +25,9 @@ extension FluentQueue: Queue {
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
         do {
             let jobModel = try JobModel(jobId: id.string, queue: queueName.string, data: jobStorage)
+            // If the job must run at a later time, ensure it won't be picked earlier since
+            // we sort pending jobs by creation date when querying
+            jobModel.createdAt = jobStorage.delayUntil ?? Date()
             return jobModel.save(on: db)
         }
         catch {
@@ -73,6 +76,7 @@ extension FluentQueue: Queue {
             .from(JobModel.schema)
             .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
             .where(SQLColumn("\(FieldKey.queue)"), .equal, SQLBind(self.queueName.string))
+            .where(SQLColumn("\(FieldKey.createdAt)"), .lessThanOrEqual, SQLBind(Date()))
             .orderBy("\(FieldKey.createdAt)")
             .limit(1)
         if self.dbType != .sqlite {
