@@ -16,7 +16,7 @@ final class PostgresPop: PopQueryProtocol {
             )
             .returning(SQLColumn("\(FieldKey.jobId)"))
             .query
-        
+
         var id: String?
         return db.execute(sql: query) { (row) -> Void in
             id = try? row.decode(column: "\(FieldKey.jobId)", as: String.self)

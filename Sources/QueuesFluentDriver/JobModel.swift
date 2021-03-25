@@ -39,14 +39,14 @@ class JobModel: Model {
     
     /// The Job data
     @Field(key: .data)
-    //var data: JobData?
     var data: Data
     
     /// The current state of the Job
     @Field(key: .state)
     var state: QueuesFluentJobState
     
-    @Timestamp(key: .createdAt, on: .create)
+    /// Creation date by default; `delayUntil` if it's a delayed job
+    @OptionalField(key: .createdAt)
     var createdAt: Date?
     
     @Timestamp(key: .updatedAt, on: .update)
