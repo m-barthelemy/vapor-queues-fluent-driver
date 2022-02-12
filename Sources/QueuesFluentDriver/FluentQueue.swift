@@ -18,7 +18,7 @@ extension FluentQueue: Queue {
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMapThrowing { job in
-                return try JSONDecoder().decode(JobData.self, from: job.data)
+                return job.data
             }
     }
     
