@@ -39,7 +39,7 @@ class JobModel: Model {
     
     /// The Job data
     @Field(key: .data)
-    var data: Data
+    var data: JobData
     
     /// The current state of the Job
     @Field(key: .state)
@@ -59,7 +59,7 @@ class JobModel: Model {
     init(jobId: String, queue: String, data: JobData) throws {
         self.jobId = jobId
         self.queue = queue
-        self.data = try JSONEncoder().encode(data)
+        self.data = data
         self.state = .pending
     }
 }
