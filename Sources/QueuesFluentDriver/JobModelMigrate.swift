@@ -14,7 +14,7 @@ public struct JobModelMigrate: Migration {
             .id()
             .field(FieldKey.jobId,     .string, .required)
             .field(FieldKey.queue,     .string, .required)
-            .field(FieldKey.data,      .data,   .required)
+            .field(FieldKey.data,      .json,   .required)
             .field(FieldKey.state,     .string, .required)
             .field(FieldKey.createdAt, .datetime)
             .field(FieldKey.updatedAt, .datetime)
