@@ -15,8 +15,6 @@ This package should be compatible with:
 
 > Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
-> Postgres: This package relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. **Make sure you use a release of postgres-kit that is at least 2.1.0**
-
 &nbsp;
 
 ## Usage
@@ -27,7 +25,7 @@ Add it to the  `Package.swift`  of your Vapor4 project:
 
 ```swift
 
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 import PackageDescription
 
 let package = Package(
@@ -38,7 +36,7 @@ let package = Package(
     ...
     dependencies: [
         ...
-        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "1.2.0"),
+        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "2.0.0-beta1"),
         ...
     ],
     targets: [
@@ -55,10 +53,11 @@ let package = Package(
 
 &nbsp;
 
-This package needs a table, named `_jobs` by default, to store the Vapor Queues jobs. Add `JobModelMigrate` to your migrations:
+This package needs two tables, named `_jobs` and `_jobs_data` by default, to store the Vapor Queues jobs. Make sure to add this to your migrations:
 ```swift
-// Ensure the table for storing jobs is created
+// Ensure the tables for storing jobs are created
 app.migrations.add(JobModelMigrate())
+app.migrations.add(JobDataModelMigrate())
 ```    
 
 &nbsp;
@@ -83,33 +82,12 @@ app.databases.use(.postgres(configuration: dbConfig), as: queuesDb, isDefault: f
 app.queues.use(.fluent(queuesDb))
 ```
 
-### Customizing the jobs table name
-By default the `JobModelMigrate` migration will create a table named `_jobs`. You can customize the name during the migration :
+### Customizing the jobs tables name
+You can customize the names of the tables used by this driver during the migration :
 ```swift
-app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
+app.migrations.add(JobModelMigrate(schema: "my_jobs"))
+app.migrations.add(JobDataModelMigrate(schema: "my_jobs_data"))
 ```
-
-### Listing jobs
-If needed, you can list the jobs stored into the database:
-
-```swift
-import QueuesFluentDriver
-
-let queue = req.queue as! FluentQueue
-
-// Get the pending jobs
-queue.list()
-
-// Get the ones currently running
-queue.list(state: .processing)
-
-// Get the completed ones (only if you didn't set `useSoftDeletes` to `false`)
-queue.list(state: .completed)
-
-// For a custom Queue
-queue.list(queue: "myCustomQueue")
-```
-
 
 
 &nbsp;

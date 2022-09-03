@@ -15,7 +15,7 @@ extension FieldKey {
     static var data: Self { "data" }
     static var state: Self { "state" }
 
-    static var createdAt: Self { "created_at" }
+    static var runAt: Self { "run_at" }
     static var updatedAt: Self { "updated_at" }
     static var deletedAt: Self { "deleted_at" }
 }
@@ -37,9 +37,9 @@ class JobModel: Model {
     @Field(key: .state)
     var state: QueuesFluentJobState
     
-    /// Creation date by default; `delayUntil` if it's a delayed job
-    @OptionalField(key: .createdAt)
-    var createdAt: Date?
+    /// Earliest date the job can run
+    @OptionalField(key: .runAt)
+    var runAtOrAfter: Date?
     
     @Timestamp(key: .updatedAt, on: .update)
     var updatedAt: Date?

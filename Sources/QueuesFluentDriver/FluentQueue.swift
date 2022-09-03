@@ -29,23 +29,18 @@ extension FluentQueue: Queue {
     }
     
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
-        do {
-            let jobModel = JobModel(id: id, queue: queueName.string)
-            // If the job must run at a later time, ensure it won't be picked earlier since
-            // we sort pending jobs by creation date when querying
-            jobModel.createdAt = jobStorage.delayUntil ?? Date()
-            
-            let jobData = JobDataModel(id: id, jobData: jobStorage)
-            
-            return jobModel.save(on: db).map { metadata in
-                return jobData.save(on: db).map{ nothing in
-                    return metadata
-                }
+        let jobModel = JobModel(id: id, queue: queueName.string)
+        // If the job must run at a later time, ensure it won't be picked earlier since
+        // we sort pending jobs by creation date when querying
+        jobModel.runAtOrAfter = jobStorage.delayUntil ?? Date()
+        
+        let jobData = JobDataModel(id: id, jobData: jobStorage)
+        
+        return jobModel.save(on: db).flatMap { metadata in
+            return jobData.save(on: db).map{ nothing in
+                return
             }
         }
-        catch {
-            return db.eventLoop.makeFailedFuture(QueuesFluentError.jobDataEncodingError(error.localizedDescription))
-        }        
     }
     
     public func clear(_ id: JobIdentifier) -> EventLoopFuture<Void> {
@@ -89,8 +84,8 @@ extension FluentQueue: Queue {
             .from(JobModel.schema)
             .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
             .where(SQLColumn("\(FieldKey.queue)"), .equal, SQLBind(self.queueName.string))
-            .where(SQLColumn("\(FieldKey.createdAt)"), .lessThanOrEqual, SQLBind(Date()))
-            .orderBy("\(FieldKey.createdAt)")
+            .where(SQLColumn("\(FieldKey.runAt)"), .lessThanOrEqual, SQLBind(Date()))
+            .orderBy("\(FieldKey.runAt)")
             .limit(1)
         if self.dbType != .sqlite {
             selectQuery = selectQuery.lockingClause(SQLSkipLocked.forUpdateSkipLocked)
@@ -109,41 +104,6 @@ extension FluentQueue: Queue {
         }
         return popProvider.pop(db: db, select: selectQuery.query).optionalMap { id in
             return JobIdentifier(string: id)
-        }
-    }
-    
-    /// /!\ This is a non standard extension.
-    public func list(queue: String? = nil, state: QueuesFluentJobState = .pending) -> EventLoopFuture<[JobData]> {
-        guard let sqlDb = db as? SQLDatabase else {
-            return self.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
-        }
-        var query = sqlDb
-            .select()
-            .column("*")
-            .from(JobModel.schema)
-            .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(state))
-        if let queue = queue {
-            query = query.where(SQLColumn("\(FieldKey.queue)"), .equal, SQLBind(queue))
-        }
-        if self.dbType != .sqlite {
-            query = query.lockingClause(SQLSkipLocked.forShareSkipLocked)
-        }
-        query = query.limit(1000)
-        
-        var jobs = [JobData]()
-        return sqlDb.execute(sql: query.query) { (row) -> Void in
-            do {
-                let job = try row.decode(column: "\(FieldKey.data)", as: Data.self)
-                let jobData = try JSONDecoder().decode(JobData.self, from: job)
-                jobs.append(jobData)
-            }
-            catch {
-                return self.db.eventLoop.makeFailedFuture(QueuesFluentError.jobDataDecodingError("\(error)"))
-                    .whenSuccess {$0}
-            }
-        }
-        .map {
-            return jobs
         }
     }
 }
