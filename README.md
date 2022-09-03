@@ -66,7 +66,8 @@ Finally, load the `QueuesFluentDriver` driver:
 ```swift    
 app.queues.use(.fluent())
 ```
-Make sure you call `app.databases.use(...)` **before** calling `app.queues.use(.fluent())`!
+
+⚠️ Make sure you call `app.databases.use(...)` **before** calling `app.queues.use(.fluent())`!
 
 &nbsp;
 
