@@ -1,6 +1,6 @@
 # QueuesFluentDriver
 
-This Vapor Queues driver allows you to store the Queues jobs metadata into a relational database.
+This Vapor Queues driver stores the Queues jobs metadata into a relational database. It is an alternative to the default Redis driver.
 
 
 ## Compatibility
