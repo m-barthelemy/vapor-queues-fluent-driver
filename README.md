@@ -1,6 +1,6 @@
 # QueuesFluentDriver
 
-This Vapor Queues driver is an alternative to the (default) Redis driver, allowing you to use Fluent to store the Queues jobs into your relational database.
+This Vapor Queues driver allows you to store the Queues jobs metadata into a relational database.
 
 
 ## Compatibility
@@ -89,6 +89,15 @@ app.migrations.add(JobModelMigrate(schema: "my_jobs"))
 app.migrations.add(JobDataModelMigrate(schema: "my_jobs_data"))
 ```
 
+### Soft Deletes
+By default, completed jobs are deleted from the two database tables used by this driver.
+If you want to keep them, you can use Fluent's "soft delete" feature, which just sets the `deleted_at` field to a non-null value and excludes rows from queries by default:
+
+```swift
+app.queues.use(.fluent(useSoftDeletes: true))
+```
+
+When enabling this option, it is probably a good idea to cleanup the completed jobs from time to time.
 
 &nbsp;
 
@@ -97,8 +106,8 @@ app.migrations.add(JobDataModelMigrate(schema: "my_jobs_data"))
 
 
 ### Polling interval and number of workers
-By default, the Vapor Queues package creates 2 workers per CPU core, and each worker would periodically poll the database for jobs to be run.
-On a recent 4 cores MacBook, this means 8 workers querying the database every second by default.
+By default, the Vapor Queues package creates 2 workers per CPU core, and each worker would poll the database for jobs to be run every second.
+On a 4 cores system, this means 8 workers querying the database every second by default.
 
 You can change the jobs polling interval by calling:
 
@@ -108,13 +117,3 @@ app.queues.configuration.refreshInterval = .seconds(custom_value)
 
 With Queues >=1.4.0, you can also configure the number of workers that will be started by setting `app.queues.configuration.workerCount`
 
-
-### Soft Deletes
-By default, this driver uses Fluent's "soft delete" feature, meaning that completed jobs stay in the database, but with a non-null `deleted_at` value.
-If you want to delete the entry as soon as job is completed, you can set the `useSoftDeletes` option to `false`:
-
-```swift
-app.queues.use(.fluent(useSoftDeletes: false))
-```
-
-When using the default soft deletes option, it is probably a good idea to cleanup the completed jobs from time to time.
