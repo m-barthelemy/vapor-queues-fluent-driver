@@ -4,14 +4,14 @@ import Queues
 
 extension FieldKey {
     static var payload: Self { "payload" }
-    static var maxRetryCount: Self{ "max_retries" }
-    static var attempts: Self{ "attempt" }
-    static var delayUntil: Self{ "delay_until" }
-    static var queuedAt: Self{ "queued_at" }
-    static var jobName: Self{ "job_name" }
+    static var maxRetryCount: Self { "max_retries" }
+    static var attempts: Self { "attempt" }
+    static var delayUntil: Self { "delay_until" }
+    static var queuedAt: Self { "queued_at" }
+    static var jobName: Self { "job_name" }
 }
 
-/// Handles storage of  a `JobData` into the database
+/// Handles storage of a `JobData` into the database
 class JobDataModel: Model {
     required init() {}
     

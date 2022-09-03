@@ -1,6 +1,5 @@
 import Foundation
 import Fluent
-import SQLKit
 
 public struct JobDataModelMigrate: Migration {
     public init() {}
@@ -23,6 +22,6 @@ public struct JobDataModelMigrate: Migration {
     }
     
     public func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema(JobModel.schema).delete()
+        return database.schema(JobDataModel.schema).delete()
     }
 }

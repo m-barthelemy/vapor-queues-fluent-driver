@@ -19,9 +19,7 @@ public struct JobModelMigrate: Migration {
             .field(FieldKey.deletedAt, .datetime)
             .create()
             .flatMap {
-                // Mysql could lock the entire table if there's no index on the fields of the WHERE clause.
-                // Since we have both state and queue in the WHERE clause to retrieve pending jobs,
-                //  both need to be part of a composite index.
+                // Mysql could lock the entire table if there's no index on the fields of the WHERE clause used in `FluentQueue.pop()`.
                 // Order of the fields in the composite index and order of the fields in the WHERE clauses should match.
                 // Or I got totally confused reading their doc, which is also a possibility.
                 // Postgres seems to not be so sensitive and should be happy with the following indices.
@@ -30,6 +28,7 @@ public struct JobModelMigrate: Migration {
                     .on(JobModel.schema)
                     .column("\(FieldKey.state)")
                     .column("\(FieldKey.queue)")
+                    .column("\(FieldKey.runAt)")
                     .run()
                 return stateIndex.map { index in
                     return
