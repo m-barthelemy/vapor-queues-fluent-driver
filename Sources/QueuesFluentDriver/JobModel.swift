@@ -23,7 +23,7 @@ extension FieldKey {
 class JobModel: Model {
     public required init() {}
     
-    public static var schema = "_jobs"
+    public static var schema = "_jobs_meta"
     
     /// The unique Job ID
     @ID(custom: .id, generatedBy: .user)

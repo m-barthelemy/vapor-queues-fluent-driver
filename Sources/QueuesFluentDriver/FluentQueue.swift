@@ -31,7 +31,7 @@ extension FluentQueue: Queue {
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
         let jobModel = JobModel(id: id, queue: queueName.string)
         // If the job must run at a later time, ensure it won't be picked earlier since
-        // we sort pending jobs by creation date when querying
+        // we sort pending jobs by date when querying
         jobModel.runAtOrAfter = jobStorage.delayUntil ?? Date()
         
         let jobData = JobDataModel(id: id, jobData: jobStorage)

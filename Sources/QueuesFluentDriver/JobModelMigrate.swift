@@ -2,7 +2,7 @@ import Foundation
 import Fluent
 import SQLKit
 
-public struct JobModelMigrate: Migration {
+public struct JobMetaMigrate: Migration {
     public init() {}
     
     public init(schema: String) {
@@ -11,7 +11,7 @@ public struct JobModelMigrate: Migration {
     
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema(JobModel.schema)
-            .id()
+            .field(.id,                .string, .identifier(auto: false))
             .field(FieldKey.queue,     .string, .required)
             .field(FieldKey.state,     .string, .required)
             .field(FieldKey.runAt,     .datetime)

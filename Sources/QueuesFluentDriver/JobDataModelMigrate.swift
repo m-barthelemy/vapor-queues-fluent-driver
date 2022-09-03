@@ -1,7 +1,7 @@
 import Foundation
 import Fluent
 
-public struct JobDataModelMigrate: Migration {
+public struct JobDataMigrate: Migration {
     public init() {}
     
     public init(schema: String) {
@@ -10,7 +10,7 @@ public struct JobDataModelMigrate: Migration {
     
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema(JobDataModel.schema)
-            .id()
+            .field(.id,                     .string, .identifier(auto: false))
             .field(FieldKey.payload,        .data, .required)
             .field(FieldKey.maxRetryCount,  .int32, .required)
             .field(FieldKey.attempts,       .int32)

@@ -53,11 +53,11 @@ let package = Package(
 
 &nbsp;
 
-This package needs two tables, named `_jobs` and `_jobs_data` by default, to store the Vapor Queues jobs. Make sure to add this to your migrations:
+This package needs two tables, named `_jobs_meta` and `_jobs_data` by default, to store the Vapor Queues jobs. Make sure to add this to your migrations:
 ```swift
 // Ensure the tables for storing jobs are created
-app.migrations.add(JobModelMigrate())
-app.migrations.add(JobDataModelMigrate())
+app.migrations.add(JobMetaMigrate())
+app.migrations.add(JobDataMigrate())
 ```    
 
 &nbsp;

@@ -55,5 +55,7 @@ class JobDataModel: Model {
         self.maxRetryCount = jobData.maxRetryCount
         self.attempts = jobData.attempts
         self.delayUntil = jobData.delayUntil
+        self.jobName = jobData.jobName
+        self.queuedAt = jobData.queuedAt
     }
 }
