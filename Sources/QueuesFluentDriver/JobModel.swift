@@ -47,12 +47,13 @@ class JobModel: Model {
     @Timestamp(key: .deletedAt, on: .delete)
     var deletedAt: Date?
     
-    @OptionalChild(for: \.$medatata)
-    var payload: JobDataModel?
+    @Group(key: .data)
+    var data: JobDataModel
     
-    init(id: JobIdentifier, queue: String) {
+    init(id: JobIdentifier, queue: String, jobData: JobDataModel) {
         self.id = id.string
         self.queue = queue
         self.state = .pending
+        self.data = jobData
     }
 }

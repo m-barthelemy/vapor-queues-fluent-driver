@@ -12,15 +12,8 @@ extension FieldKey {
 }
 
 /// Handles storage of a `JobData` into the database
-class JobDataModel: Model {
+final class JobDataModel: Fields {
     required init() {}
-    
-    public static var schema = "_jobs_data"
-    
-    /// The unique Job uuid
-    /// Since we have a 1-1 relationship with the `JobModel` parent, this is also the ID of the parent
-    @ID(custom: .id, generatedBy: .user)
-    var id: String?
     
     /// The job data to be encoded.
     @Field(key: .payload)
@@ -46,11 +39,7 @@ class JobDataModel: Model {
     @Field(key: .jobName)
     var jobName: String
     
-    @Parent(key: .id)
-    var medatata: JobModel
-    
-    init(id: JobIdentifier, jobData: JobData) {
-        self.id = id.string
+    init(jobData: JobData) {
         self.payload = Data(jobData.payload)
         self.maxRetryCount = jobData.maxRetryCount
         self.attempts = jobData.attempts

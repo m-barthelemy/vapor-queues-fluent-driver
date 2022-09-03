@@ -53,11 +53,10 @@ let package = Package(
 
 &nbsp;
 
-This package needs two tables, named `_jobs_meta` and `_jobs_data` by default, to store the Vapor Queues jobs. Make sure to add this to your migrations:
+This package needs a table, named `_jobs_meta` by default, to store the Vapor Queues jobs. Make sure to add this to your migrations:
 ```swift
-// Ensure the tables for storing jobs are created
-app.migrations.add(JobMetaMigrate())
-app.migrations.add(JobDataMigrate())
+// Ensure the table for storing jobs is created
+app.migrations.add(JobMetadataMigrate())
 ```    
 
 &nbsp;
@@ -83,11 +82,10 @@ app.databases.use(.postgres(configuration: dbConfig), as: queuesDb, isDefault: f
 app.queues.use(.fluent(queuesDb))
 ```
 
-### Customizing the jobs tables name
-You can customize the names of the tables used by this driver during the migration :
+### Customizing the jobs table name
+You can customize the name of the table used by this driver during the migration :
 ```swift
-app.migrations.add(JobModelMigrate(schema: "my_jobs"))
-app.migrations.add(JobDataModelMigrate(schema: "my_jobs_data"))
+app.migrations.add(JobMetadataMigrate(schema: "my_jobs"))
 ```
 
 ### Soft Deletes

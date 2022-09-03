@@ -2,7 +2,7 @@ import Foundation
 import Fluent
 import SQLKit
 
-public struct JobMetaMigrate: Migration {
+public struct JobMetadataMigrate: Migration {
     public init() {}
     
     public init(schema: String) {
@@ -17,6 +17,13 @@ public struct JobMetaMigrate: Migration {
             .field(FieldKey.runAt,     .datetime)
             .field(FieldKey.updatedAt, .datetime)
             .field(FieldKey.deletedAt, .datetime)
+            // "group"/nested model JobDataModel
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.payload)"), .data)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.maxRetryCount)"), .int, .required)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.attempts)"), .int)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.delayUntil)"), .datetime)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.queuedAt)"), .datetime, .required)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.jobName)"), .string, .required)
             .create()
             .flatMap {
                 // Mysql could lock the entire table if there's no index on the fields of the WHERE clause used in `FluentQueue.pop()`.

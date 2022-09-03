@@ -12,34 +12,30 @@ public struct FluentQueue {
 
 extension FluentQueue: Queue {
     public func get(_ id: JobIdentifier) -> EventLoopFuture<JobData> {
-        return db.query(JobDataModel.self)
+        return db.query(JobModel.self)
             .filter(\.$id == id.string)
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMapThrowing { job in
                 return JobData(
-                    payload: Array(job.payload),
-                    maxRetryCount: job.maxRetryCount,
-                    jobName: job.jobName,
-                    delayUntil: job.delayUntil,
-                    queuedAt: job.queuedAt,
-                    attempts: job.attempts ?? 0
+                    payload: Array(job.data.payload),
+                    maxRetryCount: job.data.maxRetryCount,
+                    jobName: job.data.jobName,
+                    delayUntil: job.data.delayUntil,
+                    queuedAt: job.data.queuedAt,
+                    attempts: job.data.attempts ?? 0
                 )
             }
     }
     
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
-        let jobModel = JobModel(id: id, queue: queueName.string)
+        let jobModel = JobModel(id: id, queue: queueName.string, jobData: JobDataModel(jobData: jobStorage))
         // If the job must run at a later time, ensure it won't be picked earlier since
         // we sort pending jobs by date when querying
         jobModel.runAtOrAfter = jobStorage.delayUntil ?? Date()
-        
-        let jobData = JobDataModel(id: id, jobData: jobStorage)
-        
-        return jobModel.save(on: db).flatMap { metadata in
-            return jobData.save(on: db).map{ nothing in
-                return
-            }
+                
+        return jobModel.save(on: db).map { metadata in
+            return
         }
     }
     
@@ -99,8 +95,6 @@ extension FluentQueue: Queue {
                 popProvider = MySQLPop()
             case .sqlite:
                 popProvider = SqlitePop()
-            default:
-                return db.context.eventLoop.makeFailedFuture(QueuesFluentError.databaseNotFound)
         }
         return popProvider.pop(db: db, select: selectQuery.query).optionalMap { id in
             return JobIdentifier(string: id)
