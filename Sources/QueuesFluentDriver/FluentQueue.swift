@@ -12,23 +12,36 @@ public struct FluentQueue {
 
 extension FluentQueue: Queue {
     public func get(_ id: JobIdentifier) -> EventLoopFuture<JobData> {
-        return db.query(JobModel.self)
-            .filter(\.$jobId == id.string)
-            .filter(\.$state != .pending)
+        return db.query(JobDataModel.self)
+            .filter(\.$id == id.string)
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
             .flatMapThrowing { job in
-                return job.data
+                return JobData(
+                    payload: Array(job.payload),
+                    maxRetryCount: job.maxRetryCount,
+                    jobName: job.jobName,
+                    delayUntil: job.delayUntil,
+                    queuedAt: job.queuedAt,
+                    attempts: job.attempts ?? 0
+                )
             }
     }
     
     public func set(_ id: JobIdentifier, to jobStorage: JobData) -> EventLoopFuture<Void> {
         do {
-            let jobModel = try JobModel(jobId: id.string, queue: queueName.string, data: jobStorage)
+            let jobModel = JobModel(id: id, queue: queueName.string)
             // If the job must run at a later time, ensure it won't be picked earlier since
             // we sort pending jobs by creation date when querying
             jobModel.createdAt = jobStorage.delayUntil ?? Date()
-            return jobModel.save(on: db)
+            
+            let jobData = JobDataModel(id: id, jobData: jobStorage)
+            
+            return jobModel.save(on: db).map { metadata in
+                return jobData.save(on: db).map{ nothing in
+                    return metadata
+                }
+            }
         }
         catch {
             return db.eventLoop.makeFailedFuture(QueuesFluentError.jobDataEncodingError(error.localizedDescription))
@@ -38,7 +51,7 @@ extension FluentQueue: Queue {
     public func clear(_ id: JobIdentifier) -> EventLoopFuture<Void> {
         // This does the equivalent of a Fluent Softdelete but sets the `state` to `completed`
         return db.query(JobModel.self)
-            .filter(\.$jobId == id.string)
+            .filter(\.$id == id.string)
             .filter(\.$state != .completed)
             .first()
             .unwrap(or: QueuesFluentError.missingJob(id))
@@ -60,7 +73,7 @@ extension FluentQueue: Queue {
         return sqlDb
             .update(JobModel.schema)
             .set(SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.pending))
-            .where(SQLColumn("\(FieldKey.jobId)"), .equal, SQLBind(id.string))
+            .where(SQLColumn("\(FieldKey.id)"), .equal, SQLBind(id.string))
             .run()
     }
     
@@ -72,7 +85,7 @@ extension FluentQueue: Queue {
         
         var selectQuery = sqlDb
             .select()
-            .column("\(FieldKey.jobId)")
+            .column("\(FieldKey.id)")
             .from(JobModel.schema)
             .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
             .where(SQLColumn("\(FieldKey.queue)"), .equal, SQLBind(self.queueName.string))

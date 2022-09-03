@@ -12,9 +12,7 @@ public struct JobModelMigrate: Migration {
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema(JobModel.schema)
             .id()
-            .field(FieldKey.jobId,     .string, .required)
             .field(FieldKey.queue,     .string, .required)
-            .field(FieldKey.data,      .data,   .required)
             .field(FieldKey.state,     .string, .required)
             .field(FieldKey.createdAt, .datetime)
             .field(FieldKey.updatedAt, .datetime)
@@ -33,11 +31,7 @@ public struct JobModelMigrate: Migration {
                     .column("\(FieldKey.state)")
                     .column("\(FieldKey.queue)")
                     .run()
-                let jobIdIndex = sqlDb.create(index: "i_\(JobModel.schema)_\(FieldKey.jobId)")
-                    .on(JobModel.schema)
-                    .column("\(FieldKey.jobId)")
-                    .run()
-                return stateIndex.and(jobIdIndex).map { indices in
+                return stateIndex.map { index in
                     return
                 }
             }

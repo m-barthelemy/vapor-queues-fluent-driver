@@ -11,7 +11,6 @@ public enum QueuesFluentJobState: String, Codable, CaseIterable {
 }
 
 extension FieldKey {
-    static var jobId: Self { "job_id" }
     static var queue: Self { "queue" }
     static var data: Self { "data" }
     static var state: Self { "state" }
@@ -26,20 +25,13 @@ class JobModel: Model {
     
     public static var schema = "_jobs"
     
-    /// The unique Job uuid
-    @ID(key: .id)
-    var id: UUID?
-    
-    @Field(key: .jobId)
-    var jobId: String?
+    /// The unique Job ID
+    @ID(custom: .id, generatedBy: .user)
+    var id: String?
     
     /// The Job key
     @Field(key: .queue)
     var queue: String
-    
-    /// The Job data
-    @Field(key: .data)
-    var data: JobData
     
     /// The current state of the Job
     @Field(key: .state)
@@ -55,11 +47,12 @@ class JobModel: Model {
     @Timestamp(key: .deletedAt, on: .delete)
     var deletedAt: Date?
     
+    @OptionalChild(for: \.$medatata)
+    var payload: JobDataModel?
     
-    init(jobId: String, queue: String, data: JobData) throws {
-        self.jobId = jobId
+    init(id: JobIdentifier, queue: String) {
+        self.id = id.string
         self.queue = queue
-        self.data = data
         self.state = .pending
     }
 }

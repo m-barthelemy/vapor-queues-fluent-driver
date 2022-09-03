@@ -12,14 +12,14 @@ final class PostgresPop: PopQueryProtocol {
             .set    (SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.processing))
             .set    (SQLColumn("\(FieldKey.updatedAt)"), to: SQLBind(Date()))
             .where  (
-                SQLBinaryExpression(left: SQLColumn("\(FieldKey.jobId)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
+                SQLBinaryExpression(left: SQLColumn("\(FieldKey.id)"), op: SQLBinaryOperator.equal , right: subQueryGroup)
             )
-            .returning(SQLColumn("\(FieldKey.jobId)"))
+            .returning(SQLColumn("\(FieldKey.id)"))
             .query
 
         var id: String?
         return db.execute(sql: query) { (row) -> Void in
-            id = try? row.decode(column: "\(FieldKey.jobId)", as: String.self)
+            id = try? row.decode(column: "\(FieldKey.id)", as: String.self)
         }.map {
             return id
         }
