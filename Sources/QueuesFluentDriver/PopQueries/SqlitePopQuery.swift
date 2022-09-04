@@ -9,7 +9,7 @@ final class SqlitePop: PopQueryProtocol {
             var id: String?
 
             return database.execute(sql: select) { (row) -> Void in
-                id = try? row.decode(column: "\(FieldKey.jobId)", as: String.self)
+                id = try? row.decode(column: "\(FieldKey.id)", as: String.self)
             }
             .flatMap {
                 guard let id = id else {
@@ -19,7 +19,7 @@ final class SqlitePop: PopQueryProtocol {
                     .update(JobModel.schema)
                     .set(SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.processing))
                     .set(SQLColumn("\(FieldKey.updatedAt)"), to: SQLBind(Date()))
-                    .where(SQLColumn("\(FieldKey.jobId)"), .equal, SQLBind(id))
+                    .where(SQLColumn("\(FieldKey.id)"), .equal, SQLBind(id))
                     .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.pending))
                     .query
                 return database.execute(sql: updateQuery) { (row) in }

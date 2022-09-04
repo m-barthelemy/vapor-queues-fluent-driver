@@ -1,6 +1,6 @@
 # QueuesFluentDriver
 
-This Vapor Queues driver is an alternative to the (default) Redis driver, allowing you to use Fluent to store the Queues jobs into your relational database.
+This Vapor Queues driver stores the Queues jobs metadata into a relational database. It is an alternative to the default Redis driver.
 
 
 ## Compatibility
@@ -15,8 +15,6 @@ This package should be compatible with:
 
 > Sqlite will only work if you have a custom, very low number of Queues workers (1-2), which makes it useless except for testing purposes
 
-> Postgres: This package relies on some recently added features in `sql-kit` and `postgres-kit` >= 2.1.0. **Make sure you use a release of postgres-kit that is at least 2.1.0**
-
 &nbsp;
 
 ## Usage
@@ -27,7 +25,7 @@ Add it to the  `Package.swift`  of your Vapor4 project:
 
 ```swift
 
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 import PackageDescription
 
 let package = Package(
@@ -38,7 +36,7 @@ let package = Package(
     ...
     dependencies: [
         ...
-        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", from: "1.2.0"),
+        .package(name: "QueuesFluentDriver", url: "https://github.com/m-barthelemy/vapor-queues-fluent-driver.git", .branch("3.0.0-beta1")),
         ...
     ],
     targets: [
@@ -55,10 +53,10 @@ let package = Package(
 
 &nbsp;
 
-This package needs a table, named `_jobs` by default, to store the Vapor Queues jobs. Add `JobModelMigrate` to your migrations:
+This package needs a table, named `_jobs_meta` by default, to store the Vapor Queues jobs. Make sure to add this to your migrations:
 ```swift
 // Ensure the table for storing jobs is created
-app.migrations.add(JobModelMigrate())
+app.migrations.add(JobMetadataMigrate())
 ```    
 
 &nbsp;
@@ -67,7 +65,8 @@ Finally, load the `QueuesFluentDriver` driver:
 ```swift    
 app.queues.use(.fluent())
 ```
-Make sure you call `app.databases.use(...)` **before** calling `app.queues.use(.fluent())`!
+
+⚠️ Make sure you call `app.databases.use(...)` **before** calling `app.queues.use(.fluent())`!
 
 &nbsp;
 
@@ -84,33 +83,20 @@ app.queues.use(.fluent(queuesDb))
 ```
 
 ### Customizing the jobs table name
-By default the `JobModelMigrate` migration will create a table named `_jobs`. You can customize the name during the migration :
+You can customize the name of the table used by this driver during the migration :
 ```swift
-app.migrations.add(JobModelMigrate(schema: "vapor_queues"))
+app.migrations.add(JobMetadataMigrate(schema: "my_jobs"))
 ```
 
-### Listing jobs
-If needed, you can list the jobs stored into the database:
+### Soft Deletes
+By default, completed jobs are deleted from the two database tables used by this driver.
+If you want to keep them, you can use Fluent's "soft delete" feature, which just sets the `deleted_at` field to a non-null value and excludes rows from queries by default:
 
 ```swift
-import QueuesFluentDriver
-
-let queue = req.queue as! FluentQueue
-
-// Get the pending jobs
-queue.list()
-
-// Get the ones currently running
-queue.list(state: .processing)
-
-// Get the completed ones (only if you didn't set `useSoftDeletes` to `false`)
-queue.list(state: .completed)
-
-// For a custom Queue
-queue.list(queue: "myCustomQueue")
+app.queues.use(.fluent(useSoftDeletes: true))
 ```
 
-
+When enabling this option, it is probably a good idea to cleanup the completed jobs from time to time.
 
 &nbsp;
 
@@ -119,8 +105,8 @@ queue.list(queue: "myCustomQueue")
 
 
 ### Polling interval and number of workers
-By default, the Vapor Queues package creates 2 workers per CPU core, and each worker would periodically poll the database for jobs to be run.
-On a recent 4 cores MacBook, this means 8 workers querying the database every second by default.
+By default, the Vapor Queues package creates 2 workers per CPU core, and each worker would poll the database for jobs to be run every second.
+On a 4 cores system, this means 8 workers querying the database every second by default.
 
 You can change the jobs polling interval by calling:
 
@@ -130,13 +116,3 @@ app.queues.configuration.refreshInterval = .seconds(custom_value)
 
 With Queues >=1.4.0, you can also configure the number of workers that will be started by setting `app.queues.configuration.workerCount`
 
-
-### Soft Deletes
-By default, this driver uses Fluent's "soft delete" feature, meaning that completed jobs stay in the database, but with a non-null `deleted_at` value.
-If you want to delete the entry as soon as job is completed, you can set the `useSoftDeletes` option to `false`:
-
-```swift
-app.queues.use(.fluent(useSoftDeletes: false))
-```
-
-When using the default soft deletes option, it is probably a good idea to cleanup the completed jobs from time to time.

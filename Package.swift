@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/sql-kit.git", from: "3.6.0"),
-        .package(url: "https://github.com/vapor/queues.git", from: "1.5.1"),
+        .package(url: "https://github.com/vapor/queues.git", from: "1.11.1"),
     ],
     targets: [
         .target(

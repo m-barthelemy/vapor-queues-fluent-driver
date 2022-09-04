@@ -2,7 +2,7 @@ import Foundation
 import Fluent
 import SQLKit
 
-public struct JobModelMigrate: Migration {
+public struct JobMetadataMigrate: Migration {
     public init() {}
     
     public init(schema: String) {
@@ -11,19 +11,22 @@ public struct JobModelMigrate: Migration {
     
     public func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema(JobModel.schema)
-            .id()
-            .field(FieldKey.jobId,     .string, .required)
+            .field(.id,                .string, .identifier(auto: false))
             .field(FieldKey.queue,     .string, .required)
-            .field(FieldKey.data,      .data,   .required)
             .field(FieldKey.state,     .string, .required)
-            .field(FieldKey.createdAt, .datetime)
+            .field(FieldKey.runAt,     .datetime)
             .field(FieldKey.updatedAt, .datetime)
             .field(FieldKey.deletedAt, .datetime)
+            // "group"/nested model JobDataModel
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.payload)"), .array(of: .uint8), .required)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.maxRetryCount)"), .int, .required)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.attempts)"), .int)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.delayUntil)"), .datetime)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.queuedAt)"), .datetime, .required)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.jobName)"), .string, .required)
             .create()
             .flatMap {
-                // Mysql could lock the entire table if there's no index on the fields of the WHERE clause.
-                // Since we have both state and queue in the WHERE clause to retrieve pending jobs,
-                //  both need to be part of a composite index.
+                // Mysql could lock the entire table if there's no index on the fields of the WHERE clause used in `FluentQueue.pop()`.
                 // Order of the fields in the composite index and order of the fields in the WHERE clauses should match.
                 // Or I got totally confused reading their doc, which is also a possibility.
                 // Postgres seems to not be so sensitive and should be happy with the following indices.
@@ -32,12 +35,9 @@ public struct JobModelMigrate: Migration {
                     .on(JobModel.schema)
                     .column("\(FieldKey.state)")
                     .column("\(FieldKey.queue)")
+                    .column("\(FieldKey.runAt)")
                     .run()
-                let jobIdIndex = sqlDb.create(index: "i_\(JobModel.schema)_\(FieldKey.jobId)")
-                    .on(JobModel.schema)
-                    .column("\(FieldKey.jobId)")
-                    .run()
-                return stateIndex.and(jobIdIndex).map { indices in
+                return stateIndex.map { index in
                     return
                 }
             }

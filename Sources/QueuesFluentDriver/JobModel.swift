@@ -11,12 +11,11 @@ public enum QueuesFluentJobState: String, Codable, CaseIterable {
 }
 
 extension FieldKey {
-    static var jobId: Self { "job_id" }
     static var queue: Self { "queue" }
     static var data: Self { "data" }
     static var state: Self { "state" }
 
-    static var createdAt: Self { "created_at" }
+    static var runAt: Self { "run_at" }
     static var updatedAt: Self { "updated_at" }
     static var deletedAt: Self { "deleted_at" }
 }
@@ -24,30 +23,23 @@ extension FieldKey {
 class JobModel: Model {
     public required init() {}
     
-    public static var schema = "_jobs"
+    public static var schema = "_jobs_meta"
     
-    /// The unique Job uuid
-    @ID(key: .id)
-    var id: UUID?
-    
-    @Field(key: .jobId)
-    var jobId: String?
+    /// The unique Job ID
+    @ID(custom: .id, generatedBy: .user)
+    var id: String?
     
     /// The Job key
     @Field(key: .queue)
     var queue: String
     
-    /// The Job data
-    @Field(key: .data)
-    var data: JobData
-    
     /// The current state of the Job
     @Field(key: .state)
     var state: QueuesFluentJobState
     
-    /// Creation date by default; `delayUntil` if it's a delayed job
-    @OptionalField(key: .createdAt)
-    var createdAt: Date?
+    /// Earliest date the job can run
+    @OptionalField(key: .runAt)
+    var runAtOrAfter: Date?
     
     @Timestamp(key: .updatedAt, on: .update)
     var updatedAt: Date?
@@ -55,11 +47,13 @@ class JobModel: Model {
     @Timestamp(key: .deletedAt, on: .delete)
     var deletedAt: Date?
     
+    @Group(key: .data)
+    var data: JobDataModel
     
-    init(jobId: String, queue: String, data: JobData) throws {
-        self.jobId = jobId
+    init(id: JobIdentifier, queue: String, jobData: JobDataModel) {
+        self.id = id.string
         self.queue = queue
-        self.data = data
         self.state = .pending
+        self.data = jobData
     }
 }
