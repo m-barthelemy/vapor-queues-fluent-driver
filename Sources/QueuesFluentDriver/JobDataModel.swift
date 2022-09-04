@@ -17,7 +17,7 @@ final class JobDataModel: Fields {
     
     /// The job data to be encoded.
     @Field(key: .payload)
-    var payload: Data
+    var payload: [UInt8]
     
     /// The maxRetryCount for the `Job`.
     @Field(key: .maxRetryCount)
@@ -40,7 +40,7 @@ final class JobDataModel: Fields {
     var jobName: String
     
     init(jobData: JobData) {
-        self.payload = Data(jobData.payload)
+        self.payload = jobData.payload
         self.maxRetryCount = jobData.maxRetryCount
         self.attempts = jobData.attempts
         self.delayUntil = jobData.delayUntil

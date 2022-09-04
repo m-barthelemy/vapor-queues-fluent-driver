@@ -18,7 +18,7 @@ public struct JobMetadataMigrate: Migration {
             .field(FieldKey.updatedAt, .datetime)
             .field(FieldKey.deletedAt, .datetime)
             // "group"/nested model JobDataModel
-            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.payload)"), .data, .required)
+            .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.payload)"), .array(of: .uint8), .required)
             .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.maxRetryCount)"), .int, .required)
             .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.attempts)"), .int)
             .field(.init(stringLiteral: "\(FieldKey.data)_\(FieldKey.delayUntil)"), .datetime)
