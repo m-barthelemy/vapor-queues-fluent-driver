@@ -21,7 +21,7 @@ This package should be compatible with:
 
 
 
-Add it to the  `Package.swift`  of your Vapor4 project: 
+Add it to the `Package.swift` of your Vapor4 project: 
 
 ```swift
 
