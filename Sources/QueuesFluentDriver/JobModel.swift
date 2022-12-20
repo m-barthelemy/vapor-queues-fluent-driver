@@ -3,6 +3,7 @@ import Fluent
 import Queues
 
 public enum QueuesFluentJobState: String, Codable, CaseIterable {
+    case initialized
     /// Ready to be picked up for execution
     case pending
     case processing
@@ -60,6 +61,6 @@ class JobModel: Model {
         self.jobId = jobId
         self.queue = queue
         self.data = try JSONEncoder().encode(data)
-        self.state = .pending
+        self.state = .initialized
     }
 }

@@ -61,6 +61,7 @@ extension FluentQueue: Queue {
             .update(JobModel.schema)
             .set(SQLColumn("\(FieldKey.state)"), to: SQLBind(QueuesFluentJobState.pending))
             .where(SQLColumn("\(FieldKey.jobId)"), .equal, SQLBind(id.string))
+            .where(SQLColumn("\(FieldKey.state)"), .equal, SQLBind(QueuesFluentJobState.initialized))
             .run()
     }
     
