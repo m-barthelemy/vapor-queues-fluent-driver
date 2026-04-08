@@ -1,3 +1,9 @@
+> [!WARNING]
+> This package is not actively maintained anymore.
+> Please use https://github.com/vapor-community/vapor-queues-fluent-driver instead!
+> 
+
+
 # QueuesFluentDriver
 
 This Vapor Queues driver stores the Queues jobs metadata into a relational database. It is an alternative to the default Redis driver.
